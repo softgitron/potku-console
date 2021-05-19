@@ -1,0 +1,1 @@
+Our contribution guidelines can be found [in our wiki](https://github.com/softgitron/potku-console/wiki/Contribution)
