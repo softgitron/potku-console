@@ -10,11 +10,11 @@ assignees: softgitron, EddieTheCubeHead, joomakelastudent
 **Describe the supposed change**
 A clear and concise description of the proposed change
 
-**Pitch your addition with a user story**
-As a \[role\] I can \[capability\], so that \[receive benefit\]
-
 **File and section to be updated**
 A link to the file and section that should be updated.
 
+**Problem with current form**
+A description of what is wrong with the current documentation
+
 **Additional context**
-Add any other context about the addition here.
+Add any other context about the problem here.

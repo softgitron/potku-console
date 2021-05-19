@@ -10,11 +10,11 @@ assignees: softgitron, EddieTheCubeHead, joomakelastudent
 **Describe the supposed addition**
 A clear and concise description of the proposed addition
 
-**Name of the file or section to be added**
-A name of the proposed file, or a link to the file to recieve a new section and the seciton name.
+**Pitch your addition with a user story**
+As a \[role\] I can \[capability\], so that \[receive benefit\]
 
-**User story**
-A short user story
+**Name of the files or sections to be added**
+A name of the proposed files, or links to the files to recieve a new section and the section names.
 
 **Additional context**
 Add any other context about the problem here.
