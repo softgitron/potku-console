@@ -1,0 +1,1793 @@
+openapi: "3.0.0"
+info:
+  description: "This is potku-console main API."
+  version: "0.0.1"
+  title: "Potku-console API"
+  termsOfService: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+  contact:
+    email: "roni.juntunen@student.lut.fi"
+  license:
+    name: "MIT License"
+    url: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+servers:
+- url: https://{domain}:{port}/{version}
+  variables:
+    domain:
+      default: example.com
+      description: Example server
+    port:
+      enum:
+        - "8443"
+        - "443"
+      default: "8443"
+    version:
+      enum:
+        - "v1"
+      default: "v1"
+tags:
+- name: "potku-console API"
+  description: "Main API for potku-console."
+  externalDocs:
+    description: "Project wiki"
+    url: "https://github.com/softgitron/potku-console/wiki"
+- name: "services"
+  description: "Endpoint for controlling services (game, HTTP... servers)."
+- name: "servers"
+  description: "Endpoint for controlling virtual maschines, containers and bare metal maschines that actually run services."
+- name: "users"
+  description: "Endpoint for controlling users."
+- name: "permission groups"
+  description: "Endpoint for controlling users permission groups."
+- name: "modules"
+  description: "Module loading and status related functionalities."
+- name: "service modules"
+  description: "Service module loading and status related functionalities."
+- name: "cloud modules"
+  description: "Cloud module loading and status related functionalities."
+- name: "potku-console management"
+  description: "Potku-console main settings."
+  
+paths:
+  /services:
+    get:
+      tags:
+      - services
+      summary: "Get all service names and IDs from current user."
+      description: ""
+      operationId: "getServices"
+      parameters:
+      - in: query
+        name: port
+        description: "Service port"
+        schema:
+          type: integer
+      - in: query
+        name: dns
+        description: "Service DNS"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "Valid request, service list will be provided."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Services"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    post:
+      tags:
+      - services
+      summary: "Create a new service."
+      description: ""
+      operationId: "createService"
+      requestBody:
+        description: "Service details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostNewService"
+      responses:
+          "201":
+            $ref: "#/components/responses/200ServiceDetails"
+          "403":
+            $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+  /services/permissions:
+    get:
+      tags:
+      - services
+      summary: "Get service endpoint permissions."
+      description: ""
+      operationId: "getServicesPermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+    put:
+      tags:
+      - services
+      summary: "Set new service endpoint permissions."
+      description: ""
+      operationId: "putServicesPermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /services{serviceId}:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+  
+    get:
+      tags:
+      - services
+      summary: "Get service details from specific service instance."
+      description: ""
+      operationId: "getService"
+      responses:
+        "200":
+          $ref: "#/components/responses/200ServiceDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    post:
+      tags:
+      - services
+      summary: "Alter service state."
+      description: ""
+      operationId: "postService"
+      requestBody:
+        description: "New desired service state."
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                desiredState:
+                  $ref: "#/components/schemas/DesiredServiceStates"
+      responses:
+        "200":
+          $ref: "#/components/responses/200ServiceDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - services
+      summary: "Update service details related to specific service instance."
+      description: ""
+      operationId: "putService"
+      requestBody:
+        description: "Updated service details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Service"
+      responses:
+        "200":
+          $ref: "#/components/responses/200ServiceDetails"
+        "400":
+          description: "Service ID or service module ID can't be updated."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - services
+      summary: "Delete service and all of its servers."
+      description: ""
+      operationId: "deleteService"
+      responses:
+        "200":
+          description: "Delete operation was successful."
+        "400":
+          description: "Service can't be deleted while it is running."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /services{serviceId}/permissions:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+      
+    get:
+      tags:
+      - services
+      summary: "Get specific service permission configurations"
+      description: ""
+      operationId: "getServicePermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - services
+      summary: "Set new service specific permissions."
+      description: ""
+      operationId: "putServicePermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /services{serviceId}/servers:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+  
+    get:
+      tags:
+      - services
+      - servers
+      summary: "Get all server details from specific service instance."
+      description: ""
+      operationId: "getServiceServers"
+      responses:
+        "200":
+          description: "List of servers under a service."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Servers"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    post:
+      tags:
+      - services
+      - servers
+      summary: "Add new server to the service."
+      description: ""
+      operationId: "postServiceServers"
+      requestBody:
+        description: "Server details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostNewServer"
+      responses:
+        "201":
+          $ref: "#/components/responses/200ServerDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /services{serviceId}/servers/{serverId}:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+      - $ref: "#/components/parameters/ServerPathId"
+  
+    get:
+      tags:
+      - services
+      - servers
+      summary: "Get specific server details."
+      description: ""
+      operationId: "getServiceServer"
+      responses:
+        "200":
+          description: "Service's server details"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Server"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - services
+      - servers
+      summary: "Update server details (mainly done by service modules)."
+      description: ""
+      operationId: "putServiceServer"
+      requestBody:
+        description: "New server details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Server"
+      responses:
+        "200":
+          description: "Server was updated successfully"
+        "400":
+          description: "Server can't be altered during runtime"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /services{serviceId}/servers/{serverId}/sshCredentials:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+      - $ref: "#/components/parameters/ServerPathId"
+      
+    get:
+      tags:
+      - services
+      - servers
+      summary: "Get server's SSH credentials."
+      description: ""
+      operationId: "getServiceServerSshCredentials"
+      responses:
+        "200":
+          $ref: "#/components/responses/200SshCredentials"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - services
+      - servers
+      summary: "Set server's SSH credentials."
+      description: ""
+      operationId: "putServiceServerSshCredentials"
+      requestBody:
+        description: "New SSH credentials."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SshCredentials"
+      responses:
+        "200":
+          description: "SSH credentials altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /services{serviceId}/servers/{serverId}/permissions:
+    parameters:
+      - $ref: "#/components/parameters/ServicePathId"
+      - $ref: "#/components/parameters/ServerPathId"
+      
+    get:
+      tags:
+      - services
+      - servers
+      summary: "Get specific server's permission configurations."
+      description: ""
+      operationId: "getServiceServerPermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - services
+      - servers
+      summary: "Set specific server's permission configurations."
+      description: ""
+      operationId: "putServiceServerPermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /users:
+    get:
+      tags:
+      - users
+      summary: "Get all users."
+      description: ""
+      operationId: "getUsers"
+      responses:
+        "200":
+          description: "List of all users."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Users"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - users
+      summary: "Create a new user."
+      description: ""
+      operationId: "postUser"
+      requestBody:
+        description: "New user details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserContent"
+      responses:
+        "201":
+          description: "User created successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /users{userId}:
+    parameters:
+      - $ref: "#/components/parameters/UserUserId"
+  
+    get:
+      tags:
+      - users
+      summary: "Get specific user details."
+      description: ""
+      operationId: "getUser"
+      responses:
+        "200":
+          $ref: "#/components/responses/200UserDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - users
+      summary: "Alter service state."
+      description: ""
+      operationId: "putUser"
+      requestBody:
+        description: "New user details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: "User was altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - users
+      summary: "Remove user from the system."
+      description: ""
+      operationId: "deleteUser"
+      responses:
+        "200":
+          description: "User deleted."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /users/login:
+    post:
+      tags:
+      - users
+      summary: "Login to user account."
+      description: ""
+      operationId: "postUserLogin"
+      requestBody:
+        description: "User credentials."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        "200":
+          description: "User authenticated successfully."
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "ey..."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "ey..."
+        "403":
+          description: "Login required two factor authentication / wrong username or password."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /groups:
+    get:
+      tags:
+      - "permission groups"
+      summary: "Get all groups."
+      description: ""
+      operationId: "getGroups"
+      responses:
+        "200":
+          description: "List of all permission groups."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Groups"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - "permission groups"
+      summary: "Create a new permission group."
+      description: ""
+      operationId: "postGroup"
+      requestBody:
+        description: "New permission group details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupContent"
+      responses:
+        "201":
+          description: "Group created successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /groups{groupId}:
+    parameters:
+      - $ref: "#/components/parameters/GroupGroupId"
+  
+    get:
+      tags:
+      - "permission groups"
+      summary: "Get specific permission group details."
+      description: ""
+      operationId: "getGroup"
+      responses:
+        "200":
+          $ref: "#/components/responses/200GroupDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    put:
+      tags:
+      - "permission groups"
+      summary: "Alter permission group name or users."
+      description: ""
+      operationId: "putGroup"
+      requestBody:
+        description: "New permission group details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Group"
+      responses:
+        "200":
+          description: "Group was altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - "permission groups"
+      summary: "Remove group from the system."
+      description: ""
+      operationId: "deleteGroup"
+      responses:
+        "200":
+          description: "Group deleted."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /modules/serviceModules:
+    get:
+      tags:
+      - modules
+      - service modules
+      summary: "Get list of available service modules."
+      description: ""
+      operationId: "getServiceModules"
+      responses:
+        "200":
+          description: "List of all service modules."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceModules"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - modules
+      - service modules
+      summary: "Upload new service module to the server using zip packet."
+      description: ""
+      operationId: "postServiceModules"
+      requestBody:
+        description: "New service module as zip packet."
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          $ref: "#/components/responses/200ServiceModuleDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /modules/serviceModules/{serviceModuleUuid}:
+    parameters:
+      - $ref: "#/components/parameters/ModuleServiceModuleUuid"
+    get:
+      tags:
+      - modules
+      - service modules
+      summary: "Get specific service module details."
+      description: ""
+      operationId: "getServiceModule"
+      responses:
+        "200":
+          $ref: "#/components/responses/200ServiceModuleDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - modules
+      - service modules
+      summary: "Enable, disable or change configurations of the service module."
+      description: ""
+      operationId: "postServiceModule"
+      requestBody:
+        description: "New service module enabled status."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceModule"
+      responses:
+        "200":
+          description: "Service module altered."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - modules
+      - service modules
+      summary: "Remove service module entirely from the system."
+      description: ""
+      operationId: "deleteServiceModule"
+      responses:
+        "200":
+          description: "Service module deleted."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /modules/serviceModules/{serviceModuleUuid}/permissions:
+    parameters:
+      - $ref: "#/components/parameters/ModuleServiceModuleUuid"
+    get:
+      tags:
+      - modules
+      - service modules
+      summary: "Get service module endpoint permissions."
+      description: ""
+      operationId: "getServiceModulePermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+    put:
+      tags:
+      - modules
+      - service modules
+      summary: "Set new cloud module endpoint permissions."
+      description: ""
+      operationId: "putServiceModulePermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /modules/cloudModules:
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get list of available cloud modules."
+      description: ""
+      operationId: "getCloudModules"
+      responses:
+        "200":
+          description: "List of all cloud modules."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudModules"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Upload new cloud module to the server using zip packet."
+      description: ""
+      operationId: "postCloudModules"
+      requestBody:
+        description: "New cloud module as zip packet."
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          $ref: "#/components/responses/200CloudModuleDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /modules/cloudModules/{cloudModuleUuid}:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get specific cloud module details."
+      description: ""
+      operationId: "getCloudModule"
+      responses:
+        "200":
+          $ref: "#/components/responses/200CloudModuleDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Enable, disable or change configurations of the cloud module."
+      description: ""
+      operationId: "postCloudModule"
+      requestBody:
+        description: "New cloud module enabled status."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceModule"
+      responses:
+        "200":
+          description: "Cloud module altered."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Remove cloud module entirely from the system."
+      description: ""
+      operationId: "deleteCloudModule"
+      responses:
+        "200":
+          description: "Cloud module deleted."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /modules/cloudModules/{cloudModuleUuid}/permissions:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get cloud module endpoint permissions."
+      description: ""
+      operationId: "getCloudModulePermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+    put:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Set new cloud module endpoint permissions."
+      description: ""
+      operationId: "putCloudModulePermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /modules/cloudModules/{cloudModuleUuid}/accounts:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get cloud account related to specific cloud module."
+      description: ""
+      operationId: "getCloudModuleAccounts"
+      responses:
+        "200":
+          description: "List of all cloud credentials."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloudAccounts"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Input new cloud account details."
+      description: ""
+      operationId: "postCloudModuleAccounts"
+      requestBody:
+        description: "New cloud module account details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloudAccount"
+      responses:
+        "201":
+          description: "Cloud module account created."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /modules/cloudModules/{cloudModuleUuid}/accounts/{cloudAccountId}:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+      - $ref: "#/components/parameters/ModuleCloudModuleAccountId"
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get specific cloud account details."
+      description: ""
+      operationId: "getCloudModuleAccount"
+      responses:
+        "200":
+          $ref: "#/components/responses/200CloudAccountDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    put:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Update existing cloud account details."
+      description: ""
+      operationId: "putCloudModuleAccount"
+      requestBody:
+        description: "New cloud module account details."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloudAccount"
+      responses:
+        "200":
+          description: "Cloud module account altered."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+    delete:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Delete specific cloud account."
+      description: ""
+      operationId: "deleteCloudModuleAccount"
+      responses:
+        "200":
+          description: "Cloud module account deleted."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+  /modules/cloudModules/{cloudModuleUuid}/accounts/{cloudAccountId}/permissions:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+      - $ref: "#/components/parameters/ModuleCloudModuleAccountId"
+    get:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Get specific cloud account permissions."
+      description: ""
+      operationId: "getCloudModuleAccountPermissions"
+      responses:
+        "200":
+          $ref: "#/components/responses/200Permissions"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+    put:
+      tags:
+      - modules
+      - cloud modules
+      summary: "Set new cloud module endpoint permissions."
+      description: ""
+      operationId: "putCloudModuleAccountPermissions"
+      requestBody:
+        $ref: "#/components/requestBodies/NewPermissions"
+      responses:
+        "200":
+          description: "Permissions altered successfully."
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+      
+  /consoleManagement:
+    get:
+      tags:
+      - "potku-console management"
+      summary: "Get current potku-console main settings."
+      description: ""
+      operationId: "getConsoleManagement"
+      responses:
+        "200":
+          $ref: "#/components/responses/200ConsoleSettingDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+  
+    post:
+      tags:
+      - "potku-console management"
+      summary: "Set current potku-console main settings"
+      description: ""
+      operationId: "postConsoleManagement"
+      requestBody:
+        description: "New potku-console settings"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsoleSettings"
+      responses:
+        "201":
+          $ref: "#/components/responses/200CloudModuleDetails"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+      security:
+      - token: []
+
+components:
+  schemas:
+    Services:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 42
+          name:
+            type: string
+            example: Block Game survival
+          dns:
+            type: string
+            example: mygame.example.com
+          ports:
+            type: array
+            items:
+              type: integer
+              example: 25565
+            
+    Service:
+      allOf:
+        - type: object
+          properties:
+            serviceId:
+              type: integer
+              readOnly: true
+              example: 42
+            state:
+              allOf:
+                - $ref: "#/components/schemas/ServiceStates"
+                - readOnly: true
+            desiredState:
+              allOf:
+                - $ref: "#/components/schemas/ServiceStates"
+                - readOnly: true
+                - example: started
+            error:
+              allOf:
+              - $ref: "#/components/schemas/Error"
+              - readOnly: true
+              - nullable: true
+              - example: null
+            loggedInUsers:
+              type: integer
+              example: 5
+        - $ref: "#/components/schemas/ServiceContent"
+        
+    PostNewService:
+      allOf:
+        - type: object
+          properties:
+            state:
+              $ref: "#/components/schemas/InitialServiceStates"
+        - $ref: "#/components/schemas/ServiceContent"
+        
+    ServiceContent:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Block Game survival"
+        description:
+          type: string
+          example: "My favourite Block game server."
+        serviceModuleId:
+          type: integer
+          example: 42
+        dns:
+          type: string
+          example: mygame.example.com
+        ports:
+          type: array
+          items:
+            type: integer
+            example: 25565
+        serviceSpecificConfiguration:
+          type: object
+
+    ServiceStates:
+      allOf:
+        - type: string
+          enum:
+            - server starting
+            - dns configuring
+            - service configuring
+            - service stopping
+            - server stopping
+            - server reconfiguring
+            - error
+            - terminating server
+        - $ref: "#/components/schemas/InitialServiceStates"
+    
+    InitialServiceStates:
+      allOf:
+        - type: string
+          enum:
+            - uninitialized
+        - $ref: "#/components/schemas/DesiredServiceStates"
+    
+    DesiredServiceStates:
+      type: string
+      enum:
+        - started
+        - stopped
+
+    Servers:
+      type: array
+      items:
+        $ref: "#/components/schemas/Server"
+
+    Server:
+      allOf:
+        - type: object
+          properties:
+            serverId:
+              type: integer
+              readOnly: true
+              example: 42
+            state:
+              allOf:
+                - $ref: "#/components/schemas/ServerStates"
+                - readOnly: true
+            desiredState:
+              allOf:
+                - $ref: "#/components/schemas/ServerStates"
+                - readOnly: true
+                - example: started
+            error:
+              allOf:
+              - $ref: "#/components/schemas/Error"
+              - readOnly: true
+              - nullable: true
+              - example: null
+        - $ref: "#/components/schemas/ServerContent"
+    
+    PostNewServer:
+      allOf:
+        - type: object
+          properties:
+            state:
+              $ref: "#/components/schemas/InitialServerStates"
+        - $ref: "#/components/schemas/ServerContent"
+    
+    ServerContent:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Server #1"
+        description:
+          type: string
+          example: "My favourite Block game server."
+        primaryServer:
+          type: boolean
+          example: false
+        cloudModule:
+          type: object
+          properties:
+            cloudModuleUuid:
+              type: integer
+              example: 42
+            cloudAccountId:
+              type: integer
+              example: 42
+        maschine:
+          type: object
+          properties:
+            "type":
+              type: string
+              enum:
+              - virtual maschine
+              - container
+            orientation:
+              type: string
+              enum:
+              - general
+              - compute
+              - memory
+              - storage
+            cpus:
+              type: integer
+              example: 4
+            ram:
+              type: integer
+              example: 1500
+            disk:
+              type: integer
+              example: 50
+          required:
+            - "type"
+            - orientation
+            - cpus
+            - ram
+            - disk
+        network:
+          type: object
+          properties:
+            dns:
+              type: string
+              example: myserver.cloud-provider.com
+            ipv4:
+              type: string
+              format: ipv4
+              example: 1.2.3.4
+            ipv6:
+              type: string
+              format: ipv6
+              example: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+            additionalPorts:
+              type: array
+              items:
+                type: integer
+                example: 
+                  - 80
+                  - 8080
+        serverSpecificConfiguration:
+          type: object
+      required:
+        - name
+        - cloudModule
+        - maschine
+
+    ServerStates:
+      allOf:
+        - type: string
+          enum:
+            - network configuring
+            - firewall configuring
+            - disk configuring
+            - maschine configuring
+        - $ref: "#/components/schemas/InitialServerStates"
+    
+    InitialServerStates:
+      allOf:
+        - type: string
+          enum:
+            - uninitialized
+        - $ref: "#/components/schemas/DesiredServerStates"
+    
+    DesiredServerStates:
+      type: string
+      enum:
+        - started
+        - stopped
+        
+    SshCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+          example: root
+        password:
+          type: string
+          example: NotPenetrablePassword
+        privateKey:
+          type: string
+
+    Users:
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
+  
+    User:
+      allOf:
+        - type: object
+          properties:
+            userId:
+              type: integer
+              readOnly: true
+              example: 42
+        - $ref: "#/components/schemas/UserContent"
+          
+    UserContent:
+      allOf:
+      - type: object
+        properties:
+          email:
+            type: string
+            format: email
+            example: user1@example.com
+          administrator:
+            type: boolean
+            example: false
+        required:
+        - administrator
+      - $ref: "#/components/schemas/UserCredentials"
+          
+    UserCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          example: user1
+        password:
+          type: string
+          example: NotPenetrablePassword
+          writeOnly: true
+        twoFactorSecret:
+          type: string
+          example: XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W
+          writeOnly: true
+      required:
+      - username
+      - password
+
+    Groups:
+      type: array
+      items:
+        $ref: "#/components/schemas/Group"
+  
+    Group:
+      allOf:
+        - type: object
+          properties:
+            groupId:
+              type: integer
+              readOnly: true
+              example: 42
+        - $ref: "#/components/schemas/GroupContent"
+
+    GroupContent:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: "My 1# permission group"
+        users:
+          type: array
+          items:
+            type: integer
+            example: 42
+
+    ServiceModules:
+      type: array
+      items:
+        $ref: "#/components/schemas/ServiceModule"
+   
+    ServiceModule:
+      allOf:
+      - $ref: "#/components/schemas/ModuleShared"
+      - type: object
+        properties:
+          schemas:
+            type: object
+            readOnly: true
+            properties:
+              serviceModuleConfiguration:
+                type: object
+              serviceSpecifigConfiguration:
+                type: object
+          capabilities:
+            type: object
+            readOnly: true
+            properties:
+              canBeUsedAsTrigger:
+                type: boolean
+              canInformUserCount:
+                type: boolean
+              canConfigureNewService:
+                type: boolean
+              canReconfigureOfflineService:
+                type: boolean
+              canReconfigureOnlineService:
+                type: boolean
+          serviceModuleConfig:
+            type: object
+          
+    CloudModules:
+      type: array
+      items:
+        $ref: "#/components/schemas/CloudModule"
+   
+    CloudModule:
+      allOf:
+      - $ref: "#/components/schemas/ModuleShared"
+      - type: object
+        properties:
+          schemas:
+            type: object
+            readOnly: true
+            properties:
+              cloudModuleConfiguration:
+                type: object
+              serverSpecifiConfiguration:
+                type: object
+              cloudAccountSpecificConfiguration:
+                type: object
+          capabilities:
+            type: object
+            readOnly: true
+            properties:
+              canCreateNewServers:
+                type: boolean
+              canReconfigureOfflineServers:
+                type: boolean
+              canReconfigureOnlineServers:
+                type: boolean
+              canDeleteServers:
+                type: boolean
+          cloudModuleConfiguration:
+            type: object
+            
+    ModuleShared:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          readOnly: true
+          example: "Module #1"
+        description:
+          type: string
+          readOnly: true
+          example: "Module for all your needs."
+        state:
+          type: string
+          readOnly: true
+          enum:
+          - running
+          - stopped
+          - error
+        error:
+          allOf:
+          - $ref: "#/components/schemas/Error"
+          - readOnly: true
+          - nullable: true
+          - example: null
+
+    CloudAccounts:
+      type: array
+      items:
+        $ref: "#/components/schemas/CloudAccount"
+
+    CloudAccount:
+      allOf:
+        - type: object
+          properties:
+            cloudAccountId:
+              type: integer
+              readOnly: true
+              example: 42
+        - $ref: "#/components/schemas/CloudAccountContent"
+            
+    CloudAccountContent:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "My super secret cloud credentials"
+        description:
+          type: string
+          example: "These are used only for Block Game."
+        project:
+          type: string
+        token:
+          type: string
+          writeOnly: true
+        cloudAccountSecificConfiguration:
+          type: object
+          writeOnly: true
+          
+    ConsoleSettings:
+      type: object
+      properties:
+        consolePort:
+          type: integer
+        sql:
+          type: object
+          properties:
+            address:
+              type: string
+              example: "1.2.3.4:443"
+            username:
+              type: string
+              example: potku
+            password:
+              type: string
+              writeOnly: true
+              example: SuperStrongSQLPassword
+        timeouts:
+          type: object
+          properties:
+            moduleHeartbeats:
+              type: integer
+              example: 60
+              default: 60
+            moduleCalls:
+              type: integer
+              example: 120
+              default: 120
+        backgroundProcessSchedule:
+          type: object
+          properties:
+            moduleHeartbeats:
+              type: integer
+              example: 60
+              default: 60
+
+    Permissions:
+      type: array
+      items:
+        $ref: "#/components/schemas/Permission"
+        
+    Permission:
+      type: object
+      properties:
+        groupId:
+          type: integer
+          example: 42
+        permissions:
+          type: object
+          properties:
+            create:
+              type: boolean
+            read:
+              type: boolean
+            write:
+              type: boolean
+            delete:
+              type: boolean
+              
+    Error:
+      type: object
+      properties:
+        title:
+          type: string
+        code:
+          type: integer
+        description:
+          type: string
+          
+  parameters:
+    ServicePathId:
+      in: path
+      name: serviceId
+      description: "Numeric ID of the service."
+      schema:
+        type: integer
+      required: true
+      
+    ServerPathId:
+      in: path
+      name: serverId
+      description: "Numeric ID of the server."
+      schema:
+        type: integer
+      required: true
+      
+    UserUserId:
+      in: path
+      name: userId
+      description: "Numeric ID of the user."
+      schema:
+        type: integer
+      required: true
+      
+    GroupGroupId:
+      in: path
+      name: groupId
+      description: "Numeric ID of the group."
+      schema:
+        type: integer
+      required: true
+      
+    ModuleServiceModuleUuid:
+      in: path
+      name: serviceModuleUuid
+      description: "Numeric UUID of the service module."
+      schema:
+        type: string
+      required: true
+      
+    ModuleCloudModuleUuid:
+      in: path
+      name: cloudModuleUuid
+      description: "Numeric UUID of the cloud module."
+      schema:
+        type: string
+      required: true
+      
+    ModuleCloudModuleAccountId:
+      in: path
+      name: cloudAccountId
+      description: "Numeric id of cloud module credentials."
+      schema:
+        type: string
+      required: true
+  
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: token
+      
+  requestBodies:
+    NewPermissions:
+      description: "New permissions."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Permissions"
+      
+  responses:
+    200ServiceDetails:
+      description: "Service details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Service"
+            
+    200Permissions:
+      description: "Permissions will be provided."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Permissions"
+            
+    200ServerDetails:
+      description: "Server details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Server"
+            
+    200SshCredentials:
+      description: "Server SSH credentials."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SshCredentials"
+            
+    200UserDetails:
+      description: "Details of the user."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+            
+    200GroupDetails:
+      description: "Details of the permission group."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Group"
+            
+    200ServiceModuleDetails:
+      description: "Specific service module details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ServiceModule"
+            
+    200CloudModuleDetails:
+      description: "Specific cloud module details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CloudModule"
+            
+    200CloudAccountDetails:
+      description: "Cloud module account details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CloudAccount"
+    
+    200ConsoleSettingDetails:
+      description: "Current Potku console main settings."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConsoleSettings"
+  
+    403Forbidden:
+      description: "You do not have sufficient permissions."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+            
+    500Unknown:
+      description: "Unknown internal server error."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
