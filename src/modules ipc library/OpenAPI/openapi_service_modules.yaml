@@ -1,0 +1,204 @@
+openapi: "3.0.0"
+info:
+  description: "This is potku-console's service module API."
+  version: "0.0.1"
+  title: "Potku-console service module API"
+  termsOfService: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+  contact:
+    email: "roni.juntunen@student.lut.fi"
+  license:
+    name: "MIT License"
+    url: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+servers:
+- url: https://{domain}:{port}/{version}
+  variables:
+    domain:
+      default: example.com
+      description: Example server
+    port:
+      enum:
+        - "8443"
+        - "443"
+      default: "8443"
+    version:
+      enum:
+        - "v1"
+      default: "v1"
+tags:
+- name: "potku-console service module API"
+  description: "Service module API for potku-console."
+  externalDocs:
+    description: "Project wiki"
+    url: "https://github.com/softgitron/potku-console/wiki"
+- name: "triggers"
+  description: "Endpoints for controlling out bound triggers that communicate with game/service client."
+- name: "poll queries"
+  description: "Endpoints for checking that module is still healhy and queuring service status."
+- name: "configurations"
+  description: "Endpoints for configuring new and existing services."
+  
+paths:
+  /triggers:
+    get:
+      tags:
+      - triggers
+      summary: "Get active frontend triggers."
+      description: ""
+      operationId: "getTriggers"
+      responses:
+        "200":
+          $ref: "#/components/responses/200TriggerDetails"
+    post:
+      tags:
+      - triggers
+      summary: "Create a new frontend trigger."
+      description: ""
+      operationId: "postTrigger"
+      responses:
+        "200":
+          description: "Trigger created."
+          
+  /triggers/{triggerPort}:
+    parameters:
+      - $ref: "#/components/parameters/TriggerPort"
+    delete:
+      tags:
+      - triggers
+      summary: "Delete single trigger on port."
+      description: ""
+      operationId: "deleteTrigger"
+      responses:
+        "200":
+          description: "Trigger deleted."
+          
+  /healthCheck:
+    get:
+      tags:
+      - poll queries
+      summary: "Check that module is still active. Called by core on a regular intervall."
+      description: ""
+      operationId: "getHealth"
+      responses:
+        "200":
+          description: "Module is still healthy."
+          
+  /statusCheck:
+    post:
+      tags:
+      - poll queries
+      summary: "Get current active user count on the service."
+      description: ""
+      operationId: "postStatusCheck"
+      requestBody:
+        $ref: "#/components/requestBodies/BasicCoreRequest"
+      responses:
+        "200":
+          description: "Status check results."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusCheckResults"
+                
+  /configuration:
+    post:
+      tags:
+      - configurations
+      summary: "Update new service configurations."
+      description: ""
+      operationId: "postConfigurations"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring a service."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigurationRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/200BasicCoreResponse"
+
+components:
+  schemas:
+    Triggers:
+      type: array
+      items:
+        type: integer
+        example:
+        - 25565
+        - 25566
+        minimum: 0
+        maximum: 65535
+        
+    BasicCoreParameters:
+      type: object
+      properties:
+        serviceId:
+          type: integer
+          example: 42
+        serviceDns:
+          type: string
+          example: mygame.example.com
+        primaryServerId:
+          type: integer
+          example: 42
+        serviceSpecificConfiguration:
+          type: object
+        serviceModuleConfiguration:
+          type: object
+          
+    BasicCoreResponse:
+      type: object
+      properties:
+        serviceSpecificConfiguration:
+          type: object
+
+    StatusCheckResults:
+      allOf:
+      - type: object
+        properties:
+          loggedInUsers:
+            type: integer
+            example: 5
+      - $ref: "#/components/schemas/BasicCoreResponse"
+      
+    ConfigurationRequest:
+      allOf:
+      - type: object
+        properties:
+          uninitialized:
+            type: boolean
+            example: false
+      - $ref: "#/components/schemas/BasicCoreParameters"
+
+  parameters:
+    TriggerPort:
+      in: path
+      name: triggerPort
+      description: "Port of the trigger."
+      schema:
+        type: integer
+      required: true
+
+  requestBodies:
+    BasicCoreRequest:
+      description: "Mandatory parameters required in the status checks. (SSH keys can be retrieved manually if needed)"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BasicCoreParameters"
+
+  responses:
+    200TriggerDetails:
+      description: "Trigger details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Triggers"
+            
+    200BasicCoreResponse:
+      description: "Standard response to the core."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BasicCoreResponse"
