@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   description: "This is potku-console main API."
-  version: "0.0.1"
+  version: "0.1.0"
   title: "Potku-console API"
   termsOfService: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
   contact:
@@ -33,7 +33,7 @@ tags:
 - name: "services"
   description: "Endpoint for controlling services (game, HTTP... servers)."
 - name: "servers"
-  description: "Endpoint for controlling virtual maschines, containers and bare metal maschines that actually run services."
+  description: "Endpoint for controlling virtual, container and bare metal machines that actually run services."
 - name: "users"
   description: "Endpoint for controlling users."
 - name: "permission groups"
@@ -44,6 +44,8 @@ tags:
   description: "Service module loading and status related functionalities."
 - name: "cloud modules"
   description: "Cloud module loading and status related functionalities."
+- name: "cloud queries"
+  description: "Endpoint for queuring cloud provider capabilities."
 - name: "potku-console management"
   description: "Potku-console main settings."
   
@@ -1054,6 +1056,174 @@ paths:
       security:
       - token: []
       
+  /modules/cloudModules/{cloudModuleUuid}/queries/machineTypes:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get available machine types."
+      description: ""
+      operationId: "getMachineTypes"
+      responses:
+        "200":
+          description: "Available machine types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - virtual machines
+                    - bare metal machines
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+          
+  /modules/cloudModules/{cloudModuleUuid}/queries/operatingSystems:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get available operating system names."
+      description: ""
+      operationId: "getOperatingSystems"
+      responses:
+        "200":
+          description: "Available operating system types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - Arch Linux
+                    - "Ubuntu 18.04 LTS"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+          
+  /modules/cloudModules/{cloudModuleUuid}/queries/orientations:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get available compute orientation names."
+      description: ""
+      operationId: "getOrientations"
+      responses:
+        "200":
+          description: "Available compute orientation types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - Compute
+                    - Memory
+                    - Storage
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+          
+  /modules/cloudModules/{cloudModuleUuid}/queries/cpuCores:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get cpu amount profiles."
+      description: ""
+      operationId: "getCpuCores"
+      responses:
+        "200":
+          description: "Available cpu amount profiles."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: number
+                  example:
+                    - 0.5
+                    - 1.0
+                    - 2.5
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+          
+  /modules/cloudModules/{cloudModuleUuid}/queries/ramBounds:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get minimum and maximum ram available."
+      description: ""
+      operationId: "getRamBounds"
+      responses:
+        "200":
+          description: "Available minimum and maximum ram."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  minimum:
+                    type: integer
+                    example: 1024
+                  maximus:
+                    type: integer
+                    example: 16384
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+          
+  /modules/cloudModules/{cloudModuleUuid}/queries/diskBounds:
+    parameters:
+      - $ref: "#/components/parameters/ModuleCloudModuleUuid"
+    get:
+      tags:
+      - cloud modules
+      - cloud queries
+      summary: "Get minimum and maximum disk available."
+      description: ""
+      operationId: "getDiskBounds"
+      responses:
+        "200":
+          description: "Available minimum and maximum disk."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  minimum:
+                    type: integer
+                    example: 10
+                  maximus:
+                    type: integer
+                    example: 1000
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+        "501":
+          $ref: "#/components/responses/501ModuleLacksCapability"
+      
   /consoleManagement:
     get:
       tags:
@@ -1097,7 +1267,7 @@ components:
       items:
         type: object
         properties:
-          id:
+          serviceId:
             type: integer
             example: 42
           name:
@@ -1168,6 +1338,9 @@ components:
           items:
             type: integer
             example: 25565
+        sharedNetwork:
+          type: boolean
+          default: false
         serviceSpecificConfiguration:
           type: object
 
@@ -1181,7 +1354,6 @@ components:
             - service stopping
             - server stopping
             - server reconfiguring
-            - error
             - terminating server
         - $ref: "#/components/schemas/InitialServiceStates"
     
@@ -1226,6 +1398,21 @@ components:
               - readOnly: true
               - nullable: true
               - example: null
+            serverSpecificIds:
+              type: object
+              properties:
+                networkId:
+                  type: string
+                publicIpv4Id:
+                  type: string
+                publicIpv6Id:
+                  type: string
+                firewallId:
+                  type: string
+                diskId:
+                  type: string
+                machineId:
+                  type: string
         - $ref: "#/components/schemas/ServerContent"
     
     PostNewServer:
@@ -1257,14 +1444,15 @@ components:
             cloudAccountId:
               type: integer
               example: 42
-        maschine:
+        machine:
           type: object
           properties:
             "type":
               type: string
-              enum:
-              - virtual maschine
-              - container
+              example: virtual machine
+            operatingSystem:
+              type: string
+              example: "Ubuntu 18.04 LTS"
             orientation:
               type: string
               enum:
@@ -1273,7 +1461,7 @@ components:
               - memory
               - storage
             cpus:
-              type: integer
+              type: number
               example: 4
             ram:
               type: integer
@@ -1283,6 +1471,7 @@ components:
               example: 50
           required:
             - "type"
+            - operatingSystem
             - orientation
             - cpus
             - ram
@@ -1313,16 +1502,16 @@ components:
       required:
         - name
         - cloudModule
-        - maschine
+        - machine
 
     ServerStates:
       allOf:
         - type: string
           enum:
-            - network configuring
-            - firewall configuring
-            - disk configuring
-            - maschine configuring
+            - configuring network
+            - configuring firewall
+            - configuring disk
+            - configuring machine
         - $ref: "#/components/schemas/InitialServerStates"
     
     InitialServerStates:
@@ -1457,9 +1646,7 @@ components:
                 type: boolean
               canConfigureNewService:
                 type: boolean
-              canReconfigureOfflineService:
-                type: boolean
-              canReconfigureOnlineService:
+              canReconfigureService:
                 type: boolean
           serviceModuleConfig:
             type: object
@@ -1490,14 +1677,43 @@ components:
             properties:
               canCreateNewServers:
                 type: boolean
-              canReconfigureOfflineServers:
+              supportPartialConfiguration:
                 type: boolean
-              canReconfigureOnlineServers:
-                type: boolean
+              canReconfigureOffline:
+                $ref: "#/components/schemas/CloudModuleReconfigurationProperties"
+              canReconfigureOnline:
+                $ref: "#/components/schemas/CloudModuleReconfigurationProperties"
               canDeleteServers:
                 type: boolean
+              canQuery:
+                type: object
+                properties:
+                  machineTypes:
+                    type: boolean
+                  operatingSystems:
+                    type: boolean
+                  orientations:
+                    type: boolean
+                  cpuCores:
+                    type: boolean
+                  ramBounds:
+                    type: boolean
+                  diskBounds:
+                    type: boolean
           cloudModuleConfiguration:
             type: object
+            
+    CloudModuleReconfigurationProperties:
+      type: object
+      properties:
+        network:
+          type: boolean
+        firewall:
+          type: boolean
+        disk:
+          type: boolean
+        machine:
+          type: boolean
             
     ModuleShared:
       type: object
@@ -1531,6 +1747,15 @@ components:
           - readOnly: true
           - nullable: true
           - example: null
+        capabilities:
+          type: object
+          readOnly: true
+          properties:
+            moduleType:
+              type: string
+              enum:
+              - executable
+              - script
 
     CloudAccounts:
       type: array
@@ -1601,6 +1826,10 @@ components:
               type: integer
               example: 60
               default: 60
+            serviceStatusPoll:
+              type: integer
+              example: 600
+              default: 600
 
     Permissions:
       type: array
@@ -1784,9 +2013,23 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
-            
+
+    500ModuleError:
+      description: "Something has gone wrong in the module that was processing request."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
     500Unknown:
       description: "Unknown internal server error."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    501ModuleLacksCapability:
+      description: "Module does not support this functionality."
       content:
         application/json:
           schema:

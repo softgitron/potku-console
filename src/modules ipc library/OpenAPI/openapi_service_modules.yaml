@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   description: "This is potku-console's service module API."
-  version: "0.0.1"
+  version: "0.1.0"
   title: "Potku-console service module API"
   termsOfService: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
   contact:
@@ -48,6 +48,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/200TriggerDetails"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
     post:
       tags:
       - triggers
@@ -57,6 +59,8 @@ paths:
       responses:
         "200":
           description: "Trigger created."
+        "500":
+          $ref: "#/components/responses/500ModuleError"
           
   /triggers/{triggerPort}:
     parameters:
@@ -70,23 +74,25 @@ paths:
       responses:
         "200":
           description: "Trigger deleted."
+        "500":
+          $ref: "#/components/responses/500ModuleError"
           
-  /healthCheck:
+  /queries/health:
     get:
       tags:
       - poll queries
-      summary: "Check that module is still active. Called by core on a regular intervall."
+      summary: "Check that module is still active. Called by core on a regular interval."
       description: ""
       operationId: "getHealth"
       responses:
         "200":
           description: "Module is still healthy."
           
-  /statusCheck:
+  /queries/status:
     post:
       tags:
       - poll queries
-      summary: "Get current active user count on the service."
+      summary: "Get current active user count of the service."
       description: ""
       operationId: "postStatusCheck"
       requestBody:
@@ -98,6 +104,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/StatusCheckResults"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
                 
   /configuration:
     post:
@@ -116,6 +124,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/200BasicCoreResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
 
 components:
   schemas:
@@ -169,6 +179,16 @@ components:
             type: boolean
             example: false
       - $ref: "#/components/schemas/BasicCoreParameters"
+      
+    Error:
+      type: object
+      properties:
+        title:
+          type: string
+        code:
+          type: integer
+        description:
+          type: string
 
   parameters:
     TriggerPort:
@@ -202,3 +222,10 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/BasicCoreResponse"
+            
+    500ModuleError:
+      description: "Something has gone wrong while processing request."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
