@@ -193,7 +193,7 @@ paths:
       description: ""
       operationId: "postServers"
       requestBody:
-        description: "Mandotary parameters for configuring or reconfiguring a server."
+        description: "Mandotary parameters for configuring or reconfiguring servers."
         required: true
         content:
           application/json:
@@ -206,6 +206,102 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FullConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+          
+  /servers/network:
+    post:
+      tags:
+      - servers
+      summary: "Create new networks and update existing networks."
+      description: ""
+      operationId: "postServersNetwork"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring networks."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkConfigurationRequest"
+      responses:
+        "200":
+          description: "New network details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+          
+  /servers/firewall:
+    post:
+      tags:
+      - servers
+      summary: "Create new firewall configurations and update existing firewall configurations."
+      description: ""
+      operationId: "postServersFirewall"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring firewalls."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FirewallConfigurationRequest"
+      responses:
+        "200":
+          description: "New firewall details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FirewallConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+          
+  /servers/disk:
+    post:
+      tags:
+      - servers
+      summary: "Create new disk configurations and update existing disk configurations."
+      description: ""
+      operationId: "postServersDisk"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring disks."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiskConfigurationRequest"
+      responses:
+        "200":
+          description: "New disk details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiskConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+          
+  /servers/machine:
+    post:
+      tags:
+      - servers
+      summary: "Create new machine configurations and update existing machine configurations."
+      description: ""
+      operationId: "postServersMachine"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring machines."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MachineConfigurationRequest"
+      responses:
+        "200":
+          description: "New machine details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MachineConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
 
@@ -229,7 +325,54 @@ components:
               - $ref: "#/components/schemas/CoreConfigurationParameters"
               - $ref: "#/components/schemas/FirewallConfigurationParameters"
               - $ref: "#/components/schemas/DiskConfigurationParameters"
-              - $ref: "#/components/schemas/MachineConfigurationParameters"
+              - $ref: "#/components/schemas/Machine"
+              
+    NetworkConfigurationRequest:
+      allOf:
+      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+      - type: object
+        properties:
+          servers:
+            type: array
+            items:
+              allOf:
+              - $ref: "#/components/schemas/CoreConfigurationParameters"
+              
+    FirewallConfigurationRequest:
+      allOf:
+      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+      - type: object
+        properties:
+          servers:
+            type: array
+            items:
+              allOf:
+              - $ref: "#/components/schemas/CoreConfigurationParameters"
+              - $ref: "#/components/schemas/FirewallConfigurationParameters"
+              
+    DiskConfigurationRequest:
+      allOf:
+      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+      - type: object
+        properties:
+          servers:
+            type: array
+            items:
+              allOf:
+              - $ref: "#/components/schemas/CoreConfigurationParameters"
+              - $ref: "#/components/schemas/Disk"
+              
+    MachineConfigurationRequest:
+      allOf:
+      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+      - type: object
+        properties:
+          servers:
+            type: array
+            items:
+              allOf:
+              - $ref: "#/components/schemas/CoreConfigurationParameters"
+              - $ref: "#/components/schemas/Machine"
       
     CoreConfigurationParametersContainer:
       type: object
@@ -275,8 +418,97 @@ components:
         diskSize:
           type: integer
           example: 20
+            
+    FullConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+            - $ref: "#/components/schemas/CoreConfigurationResponses"
+            - $ref: "#/components/schemas/ServerSpecificIds"
+            - $ref: "#/components/schemas/Machine"
+            - $ref: "#/components/schemas/NetworkConfigurationResponses"
+            - $ref: "#/components/schemas/SshCredentials"
+            
+    NetworkConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+            - $ref: "#/components/schemas/CoreConfigurationResponses"
+            - $ref: "#/components/schemas/ServerSpecificIds"
+            - $ref: "#/components/schemas/NetworkConfigurationResponses"
+    
+    FirewallConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+            - $ref: "#/components/schemas/CoreConfigurationResponses"
+            - $ref: "#/components/schemas/ServerSpecificIds"
+            
+    DiskConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+            - $ref: "#/components/schemas/CoreConfigurationResponses"
+            - $ref: "#/components/schemas/ServerSpecificIds"
+            - $ref: "#/components/schemas/Disk"
+            
+    MachineConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+            - $ref: "#/components/schemas/CoreConfigurationResponses"
+            - $ref: "#/components/schemas/ServerSpecificIds"
+            - $ref: "#/components/schemas/Machine"
+            
+    CoreConfigurationResponses:
+      allOf:
+      - $ref: "#/components/schemas/ServerSpecificIds"
+      - type: object
+        properties:
+          serverSpecificConfiguration:
+            type: object
           
-    MachineConfigurationParameters:
+    NetworkConfigurationResponses:
+      type: object
+      properties:
+        network:
+          type: object
+          properties:
+            dns:
+              type: string
+              example: myserver.cloud-provider.com
+            ipv4:
+              type: string
+              format: ipv4
+              example: 1.2.3.4
+            ipv6:
+              type: string
+              format: ipv6
+              example: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+              
+    Disk:
+      type: object
+      properties:
+        diskSize:
+          type: integer
+          example: 50
+                  
+    Machine:
       type: object
       properties:
         machine:
@@ -311,49 +543,21 @@ components:
             - cpus
             - ram
             - disk
-            
-    FullConfigurationResponse:
+                  
+    SshCredentials:
       type: object
       properties:
-        servers:
-          type: array
-          items:
-            allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/NetworkConfigurationResponses"
-            
-    CoreConfigurationResponses:
-      allOf:
-      - type: object
-        properties:
-          serverSpecificConfiguration:
-            type: object
-      - $ref: "#/components/schemas/ServerSpecificIds"
-          
-    NetworkConfigurationResponses:
-      type: object
-      properties:
-        network:
+        sshCredentials:
           type: object
           properties:
-            dns:
+            username:
               type: string
-              example: myserver.cloud-provider.com
-            ipv4:
+              example: root
+            password:
               type: string
-              format: ipv4
-              example: 1.2.3.4
-            ipv6:
+              example: NotPenetrablePassword
+            privateKey:
               type: string
-              format: ipv6
-              example: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-            additionalPorts:
-              type: array
-              items:
-                type: integer
-                example: 
-                  - 80
-                  - 8080
 
     ServerSpecificIds:
       type: object
