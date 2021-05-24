@@ -56,9 +56,23 @@ paths:
       summary: "Create a new frontend trigger."
       description: ""
       operationId: "postTrigger"
+      requestBody:
+        $ref: "#/components/requestBodies/TriggerRequest"
       responses:
         "200":
           description: "Trigger created."
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+          
+    delete:
+      tags:
+      - triggers
+      summary: "Delete all triggers."
+      description: ""
+      operationId: "deleteTriggers"
+      responses:
+        "200":
+          description: "Triggers deleted."
         "500":
           $ref: "#/components/responses/500ModuleError"
           
@@ -133,9 +147,7 @@ components:
       type: array
       items:
         type: integer
-        example:
-        - 25565
-        - 25566
+        example: 25565
         minimum: 0
         maximum: 65535
         
@@ -207,6 +219,14 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/BasicCoreParameters"
+            
+    TriggerRequest:
+      description: "Parameters for new trigger creation."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Triggers"
 
   responses:
     200TriggerDetails:
