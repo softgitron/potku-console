@@ -10,47 +10,47 @@ info:
     name: "MIT License"
     url: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
 servers:
-- url: https://{domain}:{port}/{version}
-  variables:
-    domain:
-      default: example.com
-      description: Example server
-    port:
-      enum:
-        - "8443"
-        - "443"
-      default: "8443"
-    version:
-      enum:
-        - "v1"
-      default: "v1"
+  - url: https://{domain}:{port}/{version}
+    variables:
+      domain:
+        default: example.com
+        description: Example server
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        enum:
+          - "v1"
+        default: "v1"
 tags:
-- name: "potku-console cloud module API"
-  description: "Service cloud API for potku-console."
-  externalDocs:
-    description: "Project wiki"
-    url: "https://github.com/softgitron/potku-console/wiki"
-- name: queries
-  description: "Endpoints for checking that module is still healhy and queuring cloud provider capabilities."
-- name: servers
-  description: "Endpoints for configuring new and existing servers."
-  
+  - name: "potku-console cloud module API"
+    description: "Service cloud API for potku-console."
+    externalDocs:
+      description: "Project wiki"
+      url: "https://github.com/softgitron/potku-console/wiki"
+  - name: queries
+    description: "Endpoints for checking that module is still healhy and queuring cloud provider capabilities."
+  - name: servers
+    description: "Endpoints for configuring new and existing servers."
+
 paths:
   /queries/health:
     get:
       tags:
-      - queries
+        - queries
       summary: "Check that module is still active. Called by core on a regular interval."
       description: ""
       operationId: "getHealth"
       responses:
         "200":
           description: "Module is still healthy."
-          
+
   /queries/machineTypes:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get available machine types."
       description: ""
       operationId: "getMachineTypes"
@@ -68,11 +68,11 @@ paths:
                     - bare metal machines
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/operatingSystems:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get available operating system names."
       description: ""
       operationId: "getOperatingSystems"
@@ -90,11 +90,11 @@ paths:
                     - "Ubuntu 18.04 LTS"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/orientations:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get available compute orientation names."
       description: ""
       operationId: "getOrientations"
@@ -113,11 +113,11 @@ paths:
                     - Storage
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/cpuCores:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get cpu amount profiles."
       description: ""
       operationId: "getCpuCores"
@@ -136,11 +136,11 @@ paths:
                     - 2.5
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/ramBounds:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get minimum and maximum ram available."
       description: ""
       operationId: "getRamBounds"
@@ -155,16 +155,16 @@ paths:
                   minimum:
                     type: integer
                     example: 1024
-                  maximus:
+                  maximum:
                     type: integer
                     example: 16384
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/diskBounds:
     get:
       tags:
-      - queries
+        - queries
       summary: "Get minimum and maximum disk available."
       description: ""
       operationId: "getDiskBounds"
@@ -179,16 +179,16 @@ paths:
                   minimum:
                     type: integer
                     example: 10
-                  maximus:
+                  maximum:
                     type: integer
                     example: 1000
         "500":
           $ref: "#/components/responses/500ModuleError"
-                
+
   /servers:
     post:
       tags:
-      - servers
+        - servers
       summary: "Create new servers and update existing configurations. This endpoint is used only if module does not support partial configuration."
       description: ""
       operationId: "postServers"
@@ -208,11 +208,11 @@ paths:
                 $ref: "#/components/schemas/FullConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /servers/network:
     post:
       tags:
-      - servers
+        - servers
       summary: "Create new networks and update existing networks."
       description: ""
       operationId: "postServersNetwork"
@@ -232,11 +232,11 @@ paths:
                 $ref: "#/components/schemas/NetworkConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /servers/firewall:
     post:
       tags:
-      - servers
+        - servers
       summary: "Create new firewall configurations and update existing firewall configurations."
       description: ""
       operationId: "postServersFirewall"
@@ -256,11 +256,11 @@ paths:
                 $ref: "#/components/schemas/FirewallConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /servers/disk:
     post:
       tags:
-      - servers
+        - servers
       summary: "Create new disk configurations and update existing disk configurations."
       description: ""
       operationId: "postServersDisk"
@@ -280,11 +280,11 @@ paths:
                 $ref: "#/components/schemas/DiskConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /servers/machine:
     post:
       tags:
-      - servers
+        - servers
       summary: "Create new machine configurations and update existing machine configurations."
       description: ""
       operationId: "postServersMachine"
@@ -304,11 +304,11 @@ paths:
                 $ref: "#/components/schemas/MachineConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /servers/validate:
     post:
       tags:
-      - servers
+        - servers
       summary: "Validate that server configuration provided by the core is functional."
       description: ""
       operationId: "postServersValidate"
@@ -338,68 +338,68 @@ components:
       properties:
         serviceSpecificConfiguration:
           type: object
-      
+
     FullConfigurationRequest:
       allOf:
-      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
-      - type: object
-        properties:
-          servers:
-            type: array
-            items:
-              allOf:
-              - $ref: "#/components/schemas/CoreConfigurationParameters"
-              - $ref: "#/components/schemas/FirewallConfigurationParameters"
-              - $ref: "#/components/schemas/Machine"
-              - $ref: "#/components/schemas/Disk"
-              
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/FirewallConfigurationParameters"
+                  - $ref: "#/components/schemas/Machine"
+                  - $ref: "#/components/schemas/Disk"
+
     NetworkConfigurationRequest:
       allOf:
-      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
-      - type: object
-        properties:
-          servers:
-            type: array
-            items:
-              allOf:
-              - $ref: "#/components/schemas/CoreConfigurationParameters"
-              
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+
     FirewallConfigurationRequest:
       allOf:
-      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
-      - type: object
-        properties:
-          servers:
-            type: array
-            items:
-              allOf:
-              - $ref: "#/components/schemas/CoreConfigurationParameters"
-              - $ref: "#/components/schemas/FirewallConfigurationParameters"
-              
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/FirewallConfigurationParameters"
+
     DiskConfigurationRequest:
       allOf:
-      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
-      - type: object
-        properties:
-          servers:
-            type: array
-            items:
-              allOf:
-              - $ref: "#/components/schemas/CoreConfigurationParameters"
-              - $ref: "#/components/schemas/Disk"
-              
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/Disk"
+
     MachineConfigurationRequest:
       allOf:
-      - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
-      - type: object
-        properties:
-          servers:
-            type: array
-            items:
-              allOf:
-              - $ref: "#/components/schemas/CoreConfigurationParameters"
-              - $ref: "#/components/schemas/Machine"
-      
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/Machine"
+
     CoreConfigurationParametersContainer:
       type: object
       properties:
@@ -409,24 +409,34 @@ components:
         sharedNetwork:
           type: boolean
           example: false
-      
+      required:
+        - unitialized
+        - sharedNetwork
+
     CoreConfigurationParameters:
       allOf:
-      - type: object
-        properties:
-          serverId:
-            type: integer
-            example: 42
-          primaryServer:
-            type: boolean
-            example: true
-          cloudAccountId:
-            type: integer
-            example: 42
-          serverSpecificConfiguration:
-            type: object
-      - $ref: "#/components/schemas/ServerSpecificIds"
-          
+        - type: object
+          properties:
+            serverId:
+              type: integer
+              minimum: 0
+              example: 42
+            primaryServer:
+              type: boolean
+              example: true
+            cloudAccountId:
+              type: integer
+              minimum: 0
+              example: 42
+            serverSpecificConfiguration:
+              type: object
+          required:
+            - serverId
+            - primaryServer
+            - cloudAccountId
+            - serverSpecificConfiguration
+        - $ref: "#/components/schemas/ServerSpecificIds"
+
     FirewallConfigurationParameters:
       type: object
       properties:
@@ -434,8 +444,10 @@ components:
           type: array
           items:
             type: integer
+            minimum: 1
+            maximum: 65535
             example: 25565
-            
+
     FullConfigurationResponse:
       type: object
       properties:
@@ -443,13 +455,13 @@ components:
           type: array
           items:
             allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/ServerSpecificIds"
-            - $ref: "#/components/schemas/Machine"
-            - $ref: "#/components/schemas/Disk"
-            - $ref: "#/components/schemas/NetworkConfigurationResponses"
-            - $ref: "#/components/schemas/SshCredentials"
-            
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Machine"
+              - $ref: "#/components/schemas/Disk"
+              - $ref: "#/components/schemas/NetworkConfigurationResponses"
+              - $ref: "#/components/schemas/SshCredentials"
+
     NetworkConfigurationResponse:
       type: object
       properties:
@@ -457,10 +469,10 @@ components:
           type: array
           items:
             allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/ServerSpecificIds"
-            - $ref: "#/components/schemas/NetworkConfigurationResponses"
-    
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/NetworkConfigurationResponses"
+
     FirewallConfigurationResponse:
       type: object
       properties:
@@ -468,9 +480,9 @@ components:
           type: array
           items:
             allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/ServerSpecificIds"
-            
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+
     DiskConfigurationResponse:
       type: object
       properties:
@@ -478,10 +490,10 @@ components:
           type: array
           items:
             allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/ServerSpecificIds"
-            - $ref: "#/components/schemas/Disk"
-            
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Disk"
+
     MachineConfigurationResponse:
       type: object
       properties:
@@ -489,18 +501,18 @@ components:
           type: array
           items:
             allOf:
-            - $ref: "#/components/schemas/CoreConfigurationResponses"
-            - $ref: "#/components/schemas/ServerSpecificIds"
-            - $ref: "#/components/schemas/Machine"
-            
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Machine"
+
     CoreConfigurationResponses:
       allOf:
-      - $ref: "#/components/schemas/ServerSpecificIds"
-      - type: object
-        properties:
-          serverSpecificConfiguration:
-            type: object
-          
+        - $ref: "#/components/schemas/ServerSpecificIds"
+        - type: object
+          properties:
+            serverSpecificConfiguration:
+              type: object
+
     NetworkConfigurationResponses:
       type: object
       properties:
@@ -509,16 +521,23 @@ components:
           properties:
             dns:
               type: string
+              minLength: 4
+              maxLength: 200
+              format: hostname
               example: myserver.cloud-provider.com
             ipv4:
               type: string
+              minLength: 0
+              maxLength: 17
               format: ipv4
               example: 1.2.3.4
             ipv6:
               type: string
+              minLength: 0
+              maxLength: 39
               format: ipv6
               example: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-              
+
     Disk:
       type: object
       properties:
@@ -527,8 +546,9 @@ components:
           properties:
             diskSize:
               type: integer
+              minimum: 1
               example: 50
-                  
+
     Machine:
       type: object
       properties:
@@ -537,22 +557,26 @@ components:
           properties:
             "type":
               type: string
+              minLength: 0
+              maxLength: 50
               example: virtual machine
             operatingSystem:
               type: string
+              minLength: 0
+              maxLength: 50
               example: "Ubuntu 18.04 LTS"
             orientation:
               type: string
-              enum:
-              - general
-              - compute
-              - memory
-              - storage
+              minLength: 0
+              maxLength: 50
+              example: compute
             cpus:
               type: number
+              minimum: 0.01
               example: 4
             ram:
               type: integer
+              minimum: 100
               example: 1500
           required:
             - "type"
@@ -561,7 +585,7 @@ components:
             - cpus
             - ram
             - disk
-                  
+
     SshCredentials:
       type: object
       properties:
@@ -570,12 +594,15 @@ components:
           properties:
             username:
               type: string
+              default: ""
               example: root
             password:
               type: string
+              default: ""
               example: "2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2"
             privateKey:
               type: string
+              default: ""
 
     ServerSpecificIds:
       type: object
@@ -585,17 +612,29 @@ components:
           properties:
             networkId:
               type: string
+              minLength: 0
+              maxLength: 100
             publicIpv4Id:
               type: string
+              minLength: 0
+              maxLength: 100
             publicIpv6Id:
               type: string
+              minLength: 0
+              maxLength: 100
             firewallId:
               type: string
+              minLength: 0
+              maxLength: 100
             diskId:
               type: string
+              minLength: 0
+              maxLength: 100
             machineId:
               type: string
-      
+              minLength: 0
+              maxLength: 100
+
     Error:
       type: object
       properties:
@@ -622,7 +661,7 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/BasicCoreResponse"
-            
+
     500ModuleError:
       description: "Something has gone wrong while processing request."
       content:

@@ -10,38 +10,38 @@ info:
     name: "MIT License"
     url: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
 servers:
-- url: https://{domain}:{port}/{version}
-  variables:
-    domain:
-      default: example.com
-      description: Example server
-    port:
-      enum:
-        - "8443"
-        - "443"
-      default: "8443"
-    version:
-      enum:
-        - "v1"
-      default: "v1"
+  - url: https://{domain}:{port}/{version}
+    variables:
+      domain:
+        default: example.com
+        description: Example server
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        enum:
+          - "v1"
+        default: "v1"
 tags:
-- name: "potku-console service module API"
-  description: "Service module API for potku-console."
-  externalDocs:
-    description: "Project wiki"
-    url: "https://github.com/softgitron/potku-console/wiki"
-- name: "triggers"
-  description: "Endpoints for controlling out bound triggers that communicate with game/service client."
-- name: "poll queries"
-  description: "Endpoints for checking that module is still healhy and queuring service status."
-- name: "configurations"
-  description: "Endpoints for configuring new and existing services."
-  
+  - name: "potku-console service module API"
+    description: "Service module API for potku-console."
+    externalDocs:
+      description: "Project wiki"
+      url: "https://github.com/softgitron/potku-console/wiki"
+  - name: "triggers"
+    description: "Endpoints for controlling out bound triggers that communicate with game/service client."
+  - name: "poll queries"
+    description: "Endpoints for checking that module is still healhy and queuring service status."
+  - name: "configurations"
+    description: "Endpoints for configuring new and existing services."
+
 paths:
   /triggers:
     get:
       tags:
-      - triggers
+        - triggers
       summary: "Get active frontend triggers."
       description: ""
       operationId: "getTriggers"
@@ -52,7 +52,7 @@ paths:
           $ref: "#/components/responses/500ModuleError"
     post:
       tags:
-      - triggers
+        - triggers
       summary: "Create a new frontend trigger."
       description: ""
       operationId: "postTrigger"
@@ -63,10 +63,10 @@ paths:
           description: "Trigger created."
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
     delete:
       tags:
-      - triggers
+        - triggers
       summary: "Delete all triggers."
       description: ""
       operationId: "deleteTriggers"
@@ -75,13 +75,13 @@ paths:
           description: "Triggers deleted."
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /triggers/{triggerPort}:
     parameters:
       - $ref: "#/components/parameters/TriggerPort"
     delete:
       tags:
-      - triggers
+        - triggers
       summary: "Delete single trigger on port."
       description: ""
       operationId: "deleteTrigger"
@@ -90,22 +90,22 @@ paths:
           description: "Trigger deleted."
         "500":
           $ref: "#/components/responses/500ModuleError"
-          
+
   /queries/health:
     get:
       tags:
-      - poll queries
+        - poll queries
       summary: "Check that module is still active. Called by core on a regular interval."
       description: ""
       operationId: "getHealth"
       responses:
         "200":
           description: "Module is still healthy."
-          
+
   /queries/status:
     post:
       tags:
-      - poll queries
+        - poll queries
       summary: "Get current active user count of the service."
       description: ""
       operationId: "postStatusCheck"
@@ -120,11 +120,11 @@ paths:
                 $ref: "#/components/schemas/StatusCheckResults"
         "500":
           $ref: "#/components/responses/500ModuleError"
-                
+
   /configuration:
     post:
       tags:
-      - configurations
+        - configurations
       summary: "Update new service configurations."
       description: ""
       operationId: "postConfigurations"
@@ -148,26 +148,37 @@ components:
       items:
         type: integer
         example: 25565
-        minimum: 0
+        minimum: 1
         maximum: 65535
-        
+
     BasicCoreParameters:
       type: object
       properties:
         serviceId:
           type: integer
+          minimum: 0
           example: 42
         serviceDns:
           type: string
+          minLength: 4
+          maxLength: 200
+          format: hostname
           example: mygame.example.com
         primaryServerId:
           type: integer
+          minimum: 0
           example: 42
         serviceSpecificConfiguration:
           type: object
         serviceModuleConfiguration:
           type: object
-          
+      required:
+        - serviceId
+        - serviceDns
+        - primaryServerId
+        - serviceSpecificConfiguration
+        - serviceModuleConfiguration
+
     BasicCoreResponse:
       type: object
       properties:
@@ -176,22 +187,23 @@ components:
 
     StatusCheckResults:
       allOf:
-      - type: object
-        properties:
-          loggedInUsers:
-            type: integer
-            example: 5
-      - $ref: "#/components/schemas/BasicCoreResponse"
-      
+        - type: object
+          properties:
+            loggedInUsers:
+              type: integer
+              minimum: 0
+              example: 5
+        - $ref: "#/components/schemas/BasicCoreResponse"
+
     ConfigurationRequest:
       allOf:
-      - type: object
-        properties:
-          uninitialized:
-            type: boolean
-            example: false
-      - $ref: "#/components/schemas/BasicCoreParameters"
-      
+        - type: object
+          properties:
+            uninitialized:
+              type: boolean
+              example: false
+        - $ref: "#/components/schemas/BasicCoreParameters"
+
     Error:
       type: object
       properties:
@@ -219,7 +231,7 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/BasicCoreParameters"
-            
+
     TriggerRequest:
       description: "Parameters for new trigger creation."
       required: true
@@ -235,14 +247,14 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Triggers"
-            
+
     200BasicCoreResponse:
       description: "Standard response to the core."
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/BasicCoreResponse"
-            
+
     500ModuleError:
       description: "Something has gone wrong while processing request."
       content:
