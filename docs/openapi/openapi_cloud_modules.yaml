@@ -46,6 +46,8 @@ paths:
       responses:
         "200":
           description: "Module is still healthy."
+      security:
+        - token: []
 
   /queries/machineTypes:
     get:
@@ -68,6 +70,8 @@ paths:
                     - bare metal machines
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/operatingSystems:
     get:
@@ -90,6 +94,8 @@ paths:
                     - "Ubuntu 18.04 LTS"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/orientations:
     get:
@@ -113,6 +119,8 @@ paths:
                     - Storage
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/cpuCores:
     get:
@@ -136,6 +144,8 @@ paths:
                     - 2.5
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/ramBounds:
     get:
@@ -160,6 +170,8 @@ paths:
                     example: 16384
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/diskBounds:
     get:
@@ -184,6 +196,8 @@ paths:
                     example: 1000
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers:
     post:
@@ -208,6 +222,8 @@ paths:
                 $ref: "#/components/schemas/FullConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers/network:
     post:
@@ -232,6 +248,8 @@ paths:
                 $ref: "#/components/schemas/NetworkConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers/firewall:
     post:
@@ -256,6 +274,8 @@ paths:
                 $ref: "#/components/schemas/FirewallConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers/disk:
     post:
@@ -280,6 +300,8 @@ paths:
                 $ref: "#/components/schemas/DiskConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers/machine:
     post:
@@ -304,6 +326,8 @@ paths:
                 $ref: "#/components/schemas/MachineConfigurationResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /servers/validate:
     post:
@@ -330,6 +354,8 @@ paths:
                 $ref: "#/components/schemas/Error"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
 components:
   schemas:
@@ -653,6 +679,12 @@ components:
       schema:
         type: integer
       required: true
+
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: token
 
   responses:
     200BasicCoreResponse:

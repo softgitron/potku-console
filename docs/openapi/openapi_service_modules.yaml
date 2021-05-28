@@ -50,6 +50,9 @@ paths:
           $ref: "#/components/responses/200TriggerDetails"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
     post:
       tags:
         - triggers
@@ -63,6 +66,8 @@ paths:
           description: "Trigger created."
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
     delete:
       tags:
@@ -75,6 +80,8 @@ paths:
           description: "Triggers deleted."
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /triggers/{triggerPort}:
     parameters:
@@ -90,6 +97,8 @@ paths:
           description: "Trigger deleted."
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /queries/health:
     get:
@@ -101,6 +110,8 @@ paths:
       responses:
         "200":
           description: "Module is still healthy."
+      security:
+        - token: []
 
   /queries/status:
     post:
@@ -120,6 +131,8 @@ paths:
                 $ref: "#/components/schemas/StatusCheckResults"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
   /configuration:
     post:
@@ -140,6 +153,8 @@ paths:
           $ref: "#/components/responses/200BasicCoreResponse"
         "500":
           $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
 
 components:
   schemas:
@@ -222,6 +237,12 @@ components:
       schema:
         type: integer
       required: true
+
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: token
 
   requestBodies:
     BasicCoreRequest:
