@@ -1752,6 +1752,10 @@ components:
     GroupContent:
       type: object
       properties:
+        ownerUserId:
+          type: integer
+          minimum: 0
+          example: 42
         name:
           type: string
           minLength: 3
@@ -1761,6 +1765,7 @@ components:
           type: array
           items:
             type: integer
+            minimum: 0
             example: 42
       required:
         - name
@@ -2044,6 +2049,9 @@ components:
               type: boolean
               default: false
             delete:
+              type: boolean
+              default: false
+            alterPermissions:
               type: boolean
               default: false
       required:
