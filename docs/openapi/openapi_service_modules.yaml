@@ -246,7 +246,7 @@ components:
 
   requestBodies:
     BasicCoreRequest:
-      description: "Mandatory parameters required in the status checks. (SSH keys can be retrieved manually if needed)"
+      description: "Mandatory parameters required in the status checks. (server connection keys can be retrieved manually if needed)"
       required: true
       content:
         application/json:

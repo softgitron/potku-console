@@ -387,7 +387,7 @@ paths:
       security:
         - token: []
 
-  /services/{serviceId}/servers/{serverId}/sshCredentials:
+  /services/{serviceId}/servers/{serverId}/serverCredentials:
     parameters:
       - $ref: "#/components/parameters/ServicePathId"
       - $ref: "#/components/parameters/ServerPathId"
@@ -396,12 +396,12 @@ paths:
       tags:
         - services
         - servers
-      summary: "Get server's SSH credentials."
+      summary: "Get server's credentials."
       description: ""
-      operationId: "getServiceServerSshCredentials"
+      operationId: "getServiceServerServerCredentials"
       responses:
         "200":
-          $ref: "#/components/responses/200SshCredentials"
+          $ref: "#/components/responses/200ServerCredentials"
         "403":
           $ref: "#/components/responses/403Forbidden"
       security:
@@ -411,25 +411,25 @@ paths:
       tags:
         - services
         - servers
-      summary: "Set server's SSH credentials."
+      summary: "Set server's credentials."
       description: ""
-      operationId: "putServiceServerSshCredentials"
+      operationId: "putServiceServerServerCredentials"
       requestBody:
-        description: "New SSH credentials."
+        description: "New server credentials."
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SshCredentials"
+              $ref: "#/components/schemas/ServerCredentials"
       responses:
         "200":
-          description: "SSH credentials altered successfully."
+          description: "Server credentials altered successfully."
         "403":
           $ref: "#/components/responses/403Forbidden"
       security:
         - token: []
 
-  /services/{serviceId}/servers/{serverId}/sshCredentials/permissions:
+  /services/{serviceId}/servers/{serverId}/serverCredentials/permissions:
     parameters:
       - $ref: "#/components/parameters/ServicePathId"
       - $ref: "#/components/parameters/ServerPathId"
@@ -438,9 +438,9 @@ paths:
       tags:
         - services
         - servers
-      summary: "Get specific server's ssh credentials permission configurations."
+      summary: "Get specific server's credentials permission configurations."
       description: ""
-      operationId: "getServiceServerSshCredentialsPermissions"
+      operationId: "getServiceServerServerCredentialsPermissions"
       responses:
         "200":
           $ref: "#/components/responses/200Permissions"
@@ -453,9 +453,9 @@ paths:
       tags:
         - services
         - servers
-      summary: "Set specific server's ssh credentials permission configurations."
+      summary: "Set specific server's credentials permission configurations."
       description: ""
-      operationId: "putServiceServerSshCredentialsPermissions"
+      operationId: "putServiceServerServerCredentialsPermissions"
       requestBody:
         $ref: "#/components/requestBodies/NewPermissions"
       responses:
@@ -1646,7 +1646,7 @@ components:
         - started
         - stopped
 
-    SshCredentials:
+    ServerCredentials:
       type: object
       properties:
         username:
@@ -2174,12 +2174,12 @@ components:
           schema:
             $ref: "#/components/schemas/Server"
 
-    200SshCredentials:
-      description: "Server SSH credentials."
+    200ServerCredentials:
+      description: "Server credentials."
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/SshCredentials"
+            $ref: "#/components/schemas/ServerCredentials"
 
     200UserDetails:
       description: "Details of the user."

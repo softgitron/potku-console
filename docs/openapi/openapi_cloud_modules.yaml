@@ -486,7 +486,7 @@ components:
               - $ref: "#/components/schemas/Machine"
               - $ref: "#/components/schemas/Disk"
               - $ref: "#/components/schemas/NetworkConfigurationResponses"
-              - $ref: "#/components/schemas/SshCredentials"
+              - $ref: "#/components/schemas/ServerCredentials"
 
     NetworkConfigurationResponse:
       type: object
@@ -530,6 +530,7 @@ components:
               - $ref: "#/components/schemas/CoreConfigurationResponses"
               - $ref: "#/components/schemas/ServerSpecificIds"
               - $ref: "#/components/schemas/Machine"
+              - $ref: "#/components/schemas/ServerCredentials"
 
     CoreConfigurationResponses:
       allOf:
@@ -612,10 +613,10 @@ components:
             - ram
             - disk
 
-    SshCredentials:
+    ServerCredentials:
       type: object
       properties:
-        sshCredentials:
+        serverCredentials:
           type: object
           properties:
             username:
