@@ -1,0 +1,1 @@
+All project specific libraries should have their own dedicated subdirectories in here.
