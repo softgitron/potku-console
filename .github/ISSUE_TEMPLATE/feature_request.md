@@ -2,8 +2,8 @@
 name: Feature request
 about: Suggest an idea for this project
 title: "[Feature title]"
-labels: enhancement
-assignees: softgitron, EddieTheCubeHead, joomakelastudent
+labels: ''
+assignees: softgitron, EddieTheCubeHead, Flankmain, joomakelastudent
 
 ---
 

@@ -2,8 +2,8 @@
 name: Bug report
 about: Create a bug report to help us improve potku-console
 title: "[Bug title]"
-labels: bug
-assignees: softgitron, EddieTheCubeHead, joomakelastudent
+labels: ''
+assignees: softgitron, EddieTheCubeHead, Flankmain, joomakelastudent
 
 ---
 

@@ -2,8 +2,8 @@
 name: Documentation update
 about: Create a report to help us improve potku-console documentation
 title: "[Documentation update]"
-labels: documentation
-assignees: softgitron, EddieTheCubeHead, joomakelastudent
+labels: ''
+assignees: softgitron, EddieTheCubeHead, Flankmain, joomakelastudent
 
 ---
 
