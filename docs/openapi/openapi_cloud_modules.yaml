@@ -447,6 +447,8 @@ components:
               type: integer
               minimum: 0
               example: 42
+            action:
+              $ref: "#/components/schemas/Action"
             primaryServer:
               type: boolean
               example: true
@@ -661,6 +663,15 @@ components:
               type: string
               minLength: 0
               maxLength: 100
+
+    Action:
+      type: string
+      enum:
+        - "create"
+        - "start"
+        - "stop"
+        - "reconfigure"
+        - "destroy"
 
     Error:
       type: object
