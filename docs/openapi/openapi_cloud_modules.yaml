@@ -1,0 +1,714 @@
+openapi: "3.0.0"
+info:
+  description: "This is potku-console's cloud module API."
+  version: "0.1.0"
+  title: "Potku-console cloud module API"
+  termsOfService: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+  contact:
+    email: "roni.juntunen@student.lut.fi"
+  license:
+    name: "MIT License"
+    url: "https://github.com/softgitron/potku-console/blob/main/LICENSE"
+servers:
+  - url: https://{domain}:{port}/{version}
+    variables:
+      domain:
+        default: example.com
+        description: Example server
+      port:
+        enum:
+          - "8443"
+          - "443"
+        default: "8443"
+      version:
+        enum:
+          - "v1"
+        default: "v1"
+tags:
+  - name: "potku-console cloud module API"
+    description: "Service cloud API for potku-console."
+    externalDocs:
+      description: "Project wiki"
+      url: "https://github.com/softgitron/potku-console/wiki"
+  - name: queries
+    description: "Endpoints for checking that module is still healhy and queuring cloud provider capabilities."
+  - name: servers
+    description: "Endpoints for configuring new and existing servers."
+
+paths:
+  /queries/health:
+    get:
+      tags:
+        - queries
+      summary: "Check that module is still active. Called by core on a regular interval."
+      description: ""
+      operationId: "getHealth"
+      responses:
+        "200":
+          description: "Module is still healthy."
+      security:
+        - token: []
+
+  /queries/machineTypes:
+    get:
+      tags:
+        - queries
+      summary: "Get available machine types."
+      description: ""
+      operationId: "getMachineTypes"
+      responses:
+        "200":
+          description: "Available machine types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - virtual machines
+                    - bare metal machines
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /queries/operatingSystems:
+    get:
+      tags:
+        - queries
+      summary: "Get available operating system names."
+      description: ""
+      operationId: "getOperatingSystems"
+      responses:
+        "200":
+          description: "Available operating system types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - Arch Linux
+                    - "Ubuntu 18.04 LTS"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /queries/orientations:
+    get:
+      tags:
+        - queries
+      summary: "Get available compute orientation names."
+      description: ""
+      operationId: "getOrientations"
+      responses:
+        "200":
+          description: "Available compute orientation types."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    - Compute
+                    - Memory
+                    - Storage
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /queries/cpuCores:
+    get:
+      tags:
+        - queries
+      summary: "Get cpu amount profiles."
+      description: ""
+      operationId: "getCpuCores"
+      responses:
+        "200":
+          description: "Available cpu amount profiles."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: number
+                  example:
+                    - 0.5
+                    - 1.0
+                    - 2.5
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /queries/ramBounds:
+    get:
+      tags:
+        - queries
+      summary: "Get minimum and maximum ram available."
+      description: ""
+      operationId: "getRamBounds"
+      responses:
+        "200":
+          description: "Available minimum and maximum ram."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  minimum:
+                    type: integer
+                    example: 1024
+                  maximum:
+                    type: integer
+                    example: 16384
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /queries/diskBounds:
+    get:
+      tags:
+        - queries
+      summary: "Get minimum and maximum disk available."
+      description: ""
+      operationId: "getDiskBounds"
+      responses:
+        "200":
+          description: "Available minimum and maximum disk."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  minimum:
+                    type: integer
+                    example: 10
+                  maximum:
+                    type: integer
+                    example: 1000
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers:
+    post:
+      tags:
+        - servers
+      summary: "Create new servers and update existing configurations. This endpoint is used only if module does not support partial configuration."
+      description: ""
+      operationId: "postServers"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring servers."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FullConfigurationRequest"
+      responses:
+        "200":
+          description: "New server details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FullConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers/network:
+    post:
+      tags:
+        - servers
+      summary: "Create new networks and update existing networks."
+      description: ""
+      operationId: "postServersNetwork"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring networks."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkConfigurationRequest"
+      responses:
+        "200":
+          description: "New network details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers/firewall:
+    post:
+      tags:
+        - servers
+      summary: "Create new firewall configurations and update existing firewall configurations."
+      description: ""
+      operationId: "postServersFirewall"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring firewalls."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FirewallConfigurationRequest"
+      responses:
+        "200":
+          description: "New firewall details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FirewallConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers/disk:
+    post:
+      tags:
+        - servers
+      summary: "Create new disk configurations and update existing disk configurations."
+      description: ""
+      operationId: "postServersDisk"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring disks."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiskConfigurationRequest"
+      responses:
+        "200":
+          description: "New disk details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiskConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers/machine:
+    post:
+      tags:
+        - servers
+      summary: "Create new machine configurations and update existing machine configurations."
+      description: ""
+      operationId: "postServersMachine"
+      requestBody:
+        description: "Mandotary parameters for configuring or reconfiguring machines."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MachineConfigurationRequest"
+      responses:
+        "200":
+          description: "New machine details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MachineConfigurationResponse"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+  /servers/validate:
+    post:
+      tags:
+        - servers
+      summary: "Validate that server configuration provided by the core is functional."
+      description: ""
+      operationId: "postServersValidate"
+      requestBody:
+        description: "Parameters for validating servers"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FullConfigurationRequest"
+      responses:
+        "200":
+          description: "Validation was successfull."
+        "400":
+          description: "There were some problems with the configuration."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          $ref: "#/components/responses/500ModuleError"
+      security:
+        - token: []
+
+components:
+  schemas:
+    BasicCoreResponse:
+      type: object
+      properties:
+        serviceSpecificConfiguration:
+          type: object
+
+    FullConfigurationRequest:
+      allOf:
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/FirewallConfigurationParameters"
+                  - $ref: "#/components/schemas/Machine"
+                  - $ref: "#/components/schemas/Disk"
+
+    NetworkConfigurationRequest:
+      allOf:
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+
+    FirewallConfigurationRequest:
+      allOf:
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/FirewallConfigurationParameters"
+
+    DiskConfigurationRequest:
+      allOf:
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/Disk"
+
+    MachineConfigurationRequest:
+      allOf:
+        - $ref: "#/components/schemas/CoreConfigurationParametersContainer"
+        - type: object
+          properties:
+            servers:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/components/schemas/CoreConfigurationParameters"
+                  - $ref: "#/components/schemas/Machine"
+
+    CoreConfigurationParametersContainer:
+      type: object
+      properties:
+        uninitialized:
+          type: boolean
+          example: false
+        sharedNetwork:
+          type: boolean
+          example: false
+      required:
+        - unitialized
+        - sharedNetwork
+
+    CoreConfigurationParameters:
+      allOf:
+        - type: object
+          properties:
+            serverId:
+              type: integer
+              minimum: 0
+              example: 42
+            action:
+              $ref: "#/components/schemas/Action"
+            primaryServer:
+              type: boolean
+              example: true
+            cloudAccountId:
+              type: integer
+              minimum: 0
+              example: 42
+            serverSpecificConfiguration:
+              type: object
+          required:
+            - serverId
+            - primaryServer
+            - cloudAccountId
+            - serverSpecificConfiguration
+        - $ref: "#/components/schemas/ServerSpecificIds"
+
+    FirewallConfigurationParameters:
+      type: object
+      properties:
+        ports:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 65535
+            example: 25565
+
+    FullConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Machine"
+              - $ref: "#/components/schemas/Disk"
+              - $ref: "#/components/schemas/NetworkConfigurationResponses"
+              - $ref: "#/components/schemas/ServerCredentials"
+
+    NetworkConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/NetworkConfigurationResponses"
+
+    FirewallConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+
+    DiskConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Disk"
+
+    MachineConfigurationResponse:
+      type: object
+      properties:
+        servers:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/CoreConfigurationResponses"
+              - $ref: "#/components/schemas/ServerSpecificIds"
+              - $ref: "#/components/schemas/Machine"
+              - $ref: "#/components/schemas/ServerCredentials"
+
+    CoreConfigurationResponses:
+      allOf:
+        - $ref: "#/components/schemas/ServerSpecificIds"
+        - type: object
+          properties:
+            serverSpecificConfiguration:
+              type: object
+
+    NetworkConfigurationResponses:
+      type: object
+      properties:
+        network:
+          type: object
+          properties:
+            dns:
+              type: string
+              minLength: 4
+              maxLength: 200
+              format: hostname
+              example: myserver.cloud-provider.com
+            ipv4:
+              type: string
+              minLength: 0
+              maxLength: 17
+              format: ipv4
+              example: 1.2.3.4
+            ipv6:
+              type: string
+              minLength: 0
+              maxLength: 39
+              format: ipv6
+              example: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+
+    Disk:
+      type: object
+      properties:
+        machine:
+          type: object
+          properties:
+            diskSize:
+              type: integer
+              minimum: 1
+              example: 50
+
+    Machine:
+      type: object
+      properties:
+        machine:
+          type: object
+          properties:
+            "type":
+              type: string
+              minLength: 0
+              maxLength: 50
+              example: virtual machine
+            operatingSystem:
+              type: string
+              minLength: 0
+              maxLength: 50
+              example: "Ubuntu 18.04 LTS"
+            orientation:
+              type: string
+              minLength: 0
+              maxLength: 50
+              example: compute
+            cpus:
+              type: number
+              minimum: 0.01
+              example: 4
+            ram:
+              type: integer
+              minimum: 100
+              example: 1500
+          required:
+            - "type"
+            - operatingSystem
+            - orientation
+            - cpus
+            - ram
+            - disk
+
+    ServerCredentials:
+      type: object
+      properties:
+        serverCredentials:
+          type: object
+          properties:
+            username:
+              type: string
+              default: ""
+              example: root
+            password:
+              type: string
+              default: ""
+              example: "2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2"
+            privateKey:
+              type: string
+              default: ""
+
+    ServerSpecificIds:
+      type: object
+      properties:
+        serverSpecificIds:
+          type: object
+          properties:
+            networkId:
+              type: string
+              minLength: 0
+              maxLength: 100
+            publicIpv4Id:
+              type: string
+              minLength: 0
+              maxLength: 100
+            publicIpv6Id:
+              type: string
+              minLength: 0
+              maxLength: 100
+            firewallId:
+              type: string
+              minLength: 0
+              maxLength: 100
+            diskId:
+              type: string
+              minLength: 0
+              maxLength: 100
+            machineId:
+              type: string
+              minLength: 0
+              maxLength: 100
+
+    Action:
+      type: string
+      enum:
+        - "create"
+        - "start"
+        - "stop"
+        - "reconfigure"
+        - "destroy"
+
+    Error:
+      type: object
+      properties:
+        title:
+          type: string
+        code:
+          type: integer
+        description:
+          type: string
+
+  parameters:
+    TriggerPort:
+      in: path
+      name: triggerPort
+      description: "Port of the trigger."
+      schema:
+        type: integer
+      required: true
+
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: token
+
+  responses:
+    200BasicCoreResponse:
+      description: "Standard response to the core."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BasicCoreResponse"
+
+    500ModuleError:
+      description: "Something has gone wrong while processing request."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
