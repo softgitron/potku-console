@@ -1,0 +1,6 @@
+docs/**
+src/client/
+README.md
+.gitignore
+Cargo.toml
+examples/client/

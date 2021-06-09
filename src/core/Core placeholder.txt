@@ -1,1 +1,0 @@
-All program files related to the "core" module are to be added into this directory.
