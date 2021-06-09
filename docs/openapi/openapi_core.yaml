@@ -38,8 +38,6 @@ tags:
     description: "Endpoint for controlling users."
   - name: "permission groups"
     description: "Endpoint for controlling users permission groups."
-  - name: "modules"
-    description: "Module loading and status related functionalities."
   - name: "service modules"
     description: "Service module loading and status related functionalities."
   - name: "cloud modules"
@@ -237,7 +235,6 @@ paths:
 
     get:
       tags:
-        - services
         - servers
       summary: "Get all server details from specific service instance."
       description: ""
@@ -256,7 +253,6 @@ paths:
 
     post:
       tags:
-        - services
         - servers
       summary: "Add new server to the service."
       description: ""
@@ -283,7 +279,6 @@ paths:
 
     get:
       tags:
-        - services
         - servers
       summary: "Get specific server details."
       description: ""
@@ -302,7 +297,6 @@ paths:
 
     put:
       tags:
-        - services
         - servers
       summary: "Update server details (mainly done by service modules)."
       description: ""
@@ -335,7 +329,6 @@ paths:
 
     post:
       tags:
-        - services
         - servers
       summary: "Validate that cloud provider services can be controlled with the given details."
       description: ""
@@ -357,7 +350,6 @@ paths:
 
     get:
       tags:
-        - services
         - servers
       summary: "Get specific server's permission configurations."
       description: ""
@@ -372,7 +364,6 @@ paths:
 
     put:
       tags:
-        - services
         - servers
       summary: "Set specific server's permission configurations."
       description: ""
@@ -394,7 +385,6 @@ paths:
 
     get:
       tags:
-        - services
         - servers
       summary: "Get server's credentials."
       description: ""
@@ -409,7 +399,6 @@ paths:
 
     put:
       tags:
-        - services
         - servers
       summary: "Set server's credentials."
       description: ""
@@ -436,7 +425,6 @@ paths:
 
     get:
       tags:
-        - services
         - servers
       summary: "Get specific server's credentials permission configurations."
       description: ""
@@ -451,7 +439,6 @@ paths:
 
     put:
       tags:
-        - services
         - servers
       summary: "Set specific server's credentials permission configurations."
       description: ""
@@ -692,7 +679,6 @@ paths:
   /modules/serviceModules:
     get:
       tags:
-        - modules
         - service modules
       summary: "Get list of available service modules."
       description: ""
@@ -711,7 +697,6 @@ paths:
 
     post:
       tags:
-        - modules
         - service modules
       summary: "Upload new service module to the server using zip packet."
       description: ""
@@ -737,7 +722,6 @@ paths:
       - $ref: "#/components/parameters/ModuleServiceModuleUuid"
     get:
       tags:
-        - modules
         - service modules
       summary: "Get specific service module details."
       description: ""
@@ -752,7 +736,6 @@ paths:
 
     post:
       tags:
-        - modules
         - service modules
       summary: "Enable, disable or change configurations of the service module."
       description: ""
@@ -774,7 +757,6 @@ paths:
 
     delete:
       tags:
-        - modules
         - service modules
       summary: "Remove service module entirely from the system."
       description: ""
@@ -792,7 +774,6 @@ paths:
       - $ref: "#/components/parameters/ModuleServiceModuleUuid"
     get:
       tags:
-        - modules
         - service modules
       summary: "Get service module endpoint permissions."
       description: ""
@@ -807,7 +788,6 @@ paths:
 
     put:
       tags:
-        - modules
         - service modules
       summary: "Set new cloud module endpoint permissions."
       description: ""
@@ -825,7 +805,6 @@ paths:
   /modules/cloudModules:
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get list of available cloud modules."
       description: ""
@@ -844,7 +823,6 @@ paths:
 
     post:
       tags:
-        - modules
         - cloud modules
       summary: "Upload new cloud module to the server using zip packet."
       description: ""
@@ -870,7 +848,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get specific cloud module details."
       description: ""
@@ -885,7 +862,6 @@ paths:
 
     post:
       tags:
-        - modules
         - cloud modules
       summary: "Enable, disable or change configurations of the cloud module."
       description: ""
@@ -907,7 +883,6 @@ paths:
 
     delete:
       tags:
-        - modules
         - cloud modules
       summary: "Remove cloud module entirely from the system."
       description: ""
@@ -925,7 +900,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get cloud module endpoint permissions."
       description: ""
@@ -940,7 +914,6 @@ paths:
 
     put:
       tags:
-        - modules
         - cloud modules
       summary: "Set new cloud module endpoint permissions."
       description: ""
@@ -960,7 +933,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get cloud account related to specific cloud module."
       description: ""
@@ -979,7 +951,6 @@ paths:
 
     post:
       tags:
-        - modules
         - cloud modules
       summary: "Input new cloud account details."
       description: ""
@@ -1005,7 +976,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleAccountId"
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get specific cloud account details."
       description: ""
@@ -1020,7 +990,6 @@ paths:
 
     put:
       tags:
-        - modules
         - cloud modules
       summary: "Update existing cloud account details."
       description: ""
@@ -1042,7 +1011,6 @@ paths:
 
     delete:
       tags:
-        - modules
         - cloud modules
       summary: "Delete specific cloud account."
       description: ""
@@ -1061,7 +1029,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleAccountId"
     get:
       tags:
-        - modules
         - cloud modules
       summary: "Get specific cloud account permissions."
       description: ""
@@ -1076,7 +1043,6 @@ paths:
 
     put:
       tags:
-        - modules
         - cloud modules
       summary: "Set new cloud module endpoint permissions."
       description: ""
@@ -1096,7 +1062,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get available machine types."
       description: ""
@@ -1123,7 +1088,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get available operating system names."
       description: ""
@@ -1150,7 +1114,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get available compute orientation names."
       description: ""
@@ -1175,7 +1138,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get cpu amount profiles."
       description: ""
@@ -1200,7 +1162,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get minimum and maximum ram available."
       description: ""
@@ -1229,7 +1190,6 @@ paths:
       - $ref: "#/components/parameters/ModuleCloudModuleUuid"
     get:
       tags:
-        - cloud modules
         - cloud queries
       summary: "Get minimum and maximum disk available."
       description: ""
@@ -1327,25 +1287,23 @@ components:
       allOf:
         - type: object
           properties:
+            state:
+              $ref: "#/components/schemas/ServiceStates"
+        - type: object
+          properties:
+            state:
+              readOnly: true
+        - type: object
+          properties:
             serviceId:
               type: integer
               readOnly: true
               minimum: 0
               example: 42
-            state:
-              allOf:
-                - $ref: "#/components/schemas/ServiceStates"
-                - readOnly: true
             desiredState:
-              allOf:
-                - $ref: "#/components/schemas/DesiredServiceStates"
-                - example: started
+              $ref: "#/components/schemas/DesiredServiceStates"
             error:
-              allOf:
-                - $ref: "#/components/schemas/Error"
-                - readOnly: true
-                - nullable: true
-                - example: null
+              $ref: "#/components/schemas/Error"
             flags:
               type: object
               readOnly: true
@@ -1463,26 +1421,30 @@ components:
       allOf:
         - type: object
           properties:
+            state:
+              $ref: "#/components/schemas/ServerStates"
+        - type: object
+          properties:
+            state:
+              readOnly: true
+        - type: object
+          properties:
+            desiredState:
+              $ref: "#/components/schemas/ServerStates"
+        - type: object
+          properties:
+            desiredState:
+              readOnly: true
+              example: started
+        - type: object
+          properties:
             serverId:
               type: integer
               readOnly: true
               minimum: 0
               example: 42
-            state:
-              allOf:
-                - $ref: "#/components/schemas/ServerStates"
-                - readOnly: true
-            desiredState:
-              allOf:
-                - $ref: "#/components/schemas/ServerStates"
-                - readOnly: true
-                - example: started
             error:
-              allOf:
-                - $ref: "#/components/schemas/Error"
-                - readOnly: true
-                - nullable: true
-                - example: null
+              $ref: "#/components/schemas/Error"
             newServer:
               type: boolean
               readOnly: true
@@ -1910,11 +1872,7 @@ components:
             - stopped
             - error
         error:
-          allOf:
-            - $ref: "#/components/schemas/Error"
-            - readOnly: true
-            - nullable: true
-            - example: null
+          $ref: "#/components/schemas/Error"
         capabilities:
           type: object
           readOnly: true
@@ -2071,6 +2029,7 @@ components:
         description:
           type: string
       readOnly: true
+      nullable: true
 
   parameters:
     ServicePathId:

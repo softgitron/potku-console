@@ -1,0 +1,2970 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: roni.juntunen@student.lut.fi
+  description: This is potku-console main API.
+  license:
+    name: MIT License
+    url: https://github.com/softgitron/potku-console/blob/main/LICENSE
+  termsOfService: https://github.com/softgitron/potku-console/blob/main/LICENSE
+  title: Potku-console API
+  version: 0.1.0
+servers:
+- url: https://example.com:8443/v1
+tags:
+- description: Main API for potku-console.
+  externalDocs:
+    description: Project wiki
+    url: https://github.com/softgitron/potku-console/wiki
+  name: potku-console API
+- description: Endpoint for controlling services (game, HTTP... servers).
+  name: services
+- description: Endpoint for controlling virtual, container and bare metal machines
+    that actually run services.
+  name: servers
+- description: Endpoint for controlling users.
+  name: users
+- description: Endpoint for controlling users permission groups.
+  name: permission groups
+- description: Service module loading and status related functionalities.
+  name: service modules
+- description: Cloud module loading and status related functionalities.
+  name: cloud modules
+- description: Endpoint for queuring cloud provider capabilities.
+  name: cloud queries
+- description: Potku-console main settings.
+  name: potku-console management
+paths:
+  /consoleManagement:
+    get:
+      operationId: getConsoleManagement
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSettings'
+          description: Current Potku console main settings.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get current potku-console main settings.
+      tags:
+      - potku-console management
+    post:
+      operationId: postConsoleManagement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleSettings'
+        description: New potku-console settings
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudModule'
+          description: Specific cloud module details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set current potku-console main settings
+      tags:
+      - potku-console management
+      x-codegen-request-body-name: body
+  /groups:
+    get:
+      operationId: getGroups
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups'
+          description: List of all permission groups.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get all groups.
+      tags:
+      - permission groups
+    post:
+      operationId: postGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupContent'
+        description: New permission group details.
+        required: true
+      responses:
+        "201":
+          content: {}
+          description: Group created successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Create a new permission group.
+      tags:
+      - permission groups
+      x-codegen-request-body-name: body
+  /groups/{groupId}:
+    delete:
+      operationId: deleteGroup
+      parameters:
+      - description: Numeric ID of the group.
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content: {}
+          description: Group deleted.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Remove group from the system.
+      tags:
+      - permission groups
+    get:
+      operationId: getGroup
+      parameters:
+      - description: Numeric ID of the group.
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: Details of the permission group.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific permission group details.
+      tags:
+      - permission groups
+    put:
+      operationId: putGroup
+      parameters:
+      - description: Numeric ID of the group.
+        in: path
+        name: groupId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+        description: New permission group details.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Group was altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Alter permission group name or users.
+      tags:
+      - permission groups
+      x-codegen-request-body-name: body
+  /modules/cloudModules:
+    get:
+      operationId: getCloudModules
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudModules'
+          description: List of all cloud modules.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get list of available cloud modules.
+      tags:
+      - cloud modules
+    post:
+      operationId: postCloudModules
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+        description: New cloud module as zip packet.
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudModule'
+          description: Specific cloud module details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Upload new cloud module to the server using zip packet.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}:
+    delete:
+      operationId: deleteCloudModule
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content: {}
+          description: Cloud module deleted.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Remove cloud module entirely from the system.
+      tags:
+      - cloud modules
+    get:
+      operationId: getCloudModule
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudModule'
+          description: Specific cloud module details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific cloud module details.
+      tags:
+      - cloud modules
+    post:
+      operationId: postCloudModule
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceModule'
+        description: New cloud module enabled status.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Cloud module altered.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Enable, disable or change configurations of the cloud module.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}/accounts:
+    get:
+      operationId: getCloudModuleAccounts
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudAccounts'
+          description: List of all cloud credentials.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get cloud account related to specific cloud module.
+      tags:
+      - cloud modules
+    post:
+      operationId: postCloudModuleAccounts
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudAccount'
+        description: New cloud module account details.
+        required: true
+      responses:
+        "201":
+          content: {}
+          description: Cloud module account created.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Input new cloud account details.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}/accounts/{cloudAccountId}:
+    delete:
+      operationId: deleteCloudModuleAccount
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      - description: Numeric id of cloud module credentials.
+        in: path
+        name: cloudAccountId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content: {}
+          description: Cloud module account deleted.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Delete specific cloud account.
+      tags:
+      - cloud modules
+    get:
+      operationId: getCloudModuleAccount
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      - description: Numeric id of cloud module credentials.
+        in: path
+        name: cloudAccountId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudAccount'
+          description: Cloud module account details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific cloud account details.
+      tags:
+      - cloud modules
+    put:
+      operationId: putCloudModuleAccount
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      - description: Numeric id of cloud module credentials.
+        in: path
+        name: cloudAccountId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudAccount'
+        description: New cloud module account details.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Cloud module account altered.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Update existing cloud account details.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}/accounts/{cloudAccountId}/permissions:
+    get:
+      operationId: getCloudModuleAccountPermissions
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      - description: Numeric id of cloud module credentials.
+        in: path
+        name: cloudAccountId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific cloud account permissions.
+      tags:
+      - cloud modules
+    put:
+      operationId: putCloudModuleAccountPermissions
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      - description: Numeric id of cloud module credentials.
+        in: path
+        name: cloudAccountId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set new cloud module endpoint permissions.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}/permissions:
+    get:
+      operationId: getCloudModulePermissions
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get cloud module endpoint permissions.
+      tags:
+      - cloud modules
+    put:
+      operationId: putCloudModulePermissions
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set new cloud module endpoint permissions.
+      tags:
+      - cloud modules
+      x-codegen-request-body-name: body
+  /modules/cloudModules/{cloudModuleUuid}/queries/cpuCores:
+    get:
+      operationId: getCpuCores
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  example: 1.0
+                  type: number
+                type: array
+          description: Available cpu amount profiles.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get cpu amount profiles.
+      tags:
+      - cloud queries
+  /modules/cloudModules/{cloudModuleUuid}/queries/diskBounds:
+    get:
+      operationId: getDiskBounds
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Available minimum and maximum disk.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get minimum and maximum disk available.
+      tags:
+      - cloud queries
+  /modules/cloudModules/{cloudModuleUuid}/queries/machineTypes:
+    get:
+      operationId: getMachineTypes
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  example: ""
+                  type: string
+                type: array
+          description: Available machine types.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get available machine types.
+      tags:
+      - cloud queries
+  /modules/cloudModules/{cloudModuleUuid}/queries/operatingSystems:
+    get:
+      operationId: getOperatingSystems
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  example: ""
+                  type: string
+                type: array
+          description: Available operating system types.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get available operating system names.
+      tags:
+      - cloud queries
+  /modules/cloudModules/{cloudModuleUuid}/queries/orientations:
+    get:
+      operationId: getOrientations
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  example: General
+                  type: string
+                type: array
+          description: Available compute orientation types.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get available compute orientation names.
+      tags:
+      - cloud queries
+  /modules/cloudModules/{cloudModuleUuid}/queries/ramBounds:
+    get:
+      operationId: getRamBounds
+      parameters:
+      - description: Numeric UUID of the cloud module.
+        in: path
+        name: cloudModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+          description: Available minimum and maximum ram.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Something has gone wrong in the module that was processing
+            request.
+        "501":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Module does not support this functionality.
+      summary: Get minimum and maximum ram available.
+      tags:
+      - cloud queries
+  /modules/serviceModules:
+    get:
+      operationId: getServiceModules
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceModules'
+          description: List of all service modules.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get list of available service modules.
+      tags:
+      - service modules
+    post:
+      operationId: postServiceModules
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+        description: New service module as zip packet.
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceModule'
+          description: Specific service module details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Upload new service module to the server using zip packet.
+      tags:
+      - service modules
+      x-codegen-request-body-name: body
+  /modules/serviceModules/{serviceModuleUuid}:
+    delete:
+      operationId: deleteServiceModule
+      parameters:
+      - description: Numeric UUID of the service module.
+        in: path
+        name: serviceModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content: {}
+          description: Service module deleted.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Remove service module entirely from the system.
+      tags:
+      - service modules
+    get:
+      operationId: getServiceModule
+      parameters:
+      - description: Numeric UUID of the service module.
+        in: path
+        name: serviceModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceModule'
+          description: Specific service module details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific service module details.
+      tags:
+      - service modules
+    post:
+      operationId: postServiceModule
+      parameters:
+      - description: Numeric UUID of the service module.
+        in: path
+        name: serviceModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceModule'
+        description: New service module enabled status.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Service module altered.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Enable, disable or change configurations of the service module.
+      tags:
+      - service modules
+      x-codegen-request-body-name: body
+  /modules/serviceModules/{serviceModuleUuid}/permissions:
+    get:
+      operationId: getServiceModulePermissions
+      parameters:
+      - description: Numeric UUID of the service module.
+        in: path
+        name: serviceModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get service module endpoint permissions.
+      tags:
+      - service modules
+    put:
+      operationId: putServiceModulePermissions
+      parameters:
+      - description: Numeric UUID of the service module.
+        in: path
+        name: serviceModuleUuid
+        required: true
+        schema:
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set new cloud module endpoint permissions.
+      tags:
+      - service modules
+      x-codegen-request-body-name: body
+  /services:
+    get:
+      operationId: getServices
+      parameters:
+      - description: Service port
+        in: query
+        name: port
+        schema:
+          type: integer
+      - description: Service DNS
+        in: query
+        name: dns
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Services'
+          description: Valid request, service list will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get all service names and IDs from current user.
+      tags:
+      - services
+    post:
+      operationId: createService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostNewService'
+        description: Service details.
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Service details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Create a new service.
+      tags:
+      - services
+      x-codegen-request-body-name: body
+  /services/permissions:
+    get:
+      operationId: getServicesPermissions
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get service endpoint permissions.
+      tags:
+      - services
+    put:
+      operationId: putServicesPermissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set new service endpoint permissions.
+      tags:
+      - services
+      x-codegen-request-body-name: body
+  /services/{serviceId}:
+    delete:
+      operationId: deleteService
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content: {}
+          description: Delete operation was successful.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Service can't be deleted while it is running.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Delete service and all of its servers.
+      tags:
+      - services
+    get:
+      operationId: getService
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Service details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get service details from specific service instance.
+      tags:
+      - services
+    post:
+      operationId: postService
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+        description: Updated service details.
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Service details.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Service ID or service module ID can't be updated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Update service details and desired state (start/stop service) related
+        to specific service instance.
+      tags:
+      - services
+      x-codegen-request-body-name: body
+  /services/{serviceId}/permissions:
+    get:
+      operationId: getServicePermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific service permission configurations
+      tags:
+      - services
+    put:
+      operationId: putServicePermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set new service specific permissions.
+      tags:
+      - services
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers:
+    get:
+      operationId: getServiceServers
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Servers'
+          description: List of servers under a service.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get all server details from specific service instance.
+      tags:
+      - servers
+    post:
+      operationId: postServiceServers
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostNewServer'
+        description: Server details.
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+          description: Server details.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Add new server to the service.
+      tags:
+      - servers
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers/{serverId}:
+    get:
+      operationId: getServiceServer
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+          description: Service's server details
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific server details.
+      tags:
+      - servers
+    put:
+      operationId: putServiceServer
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Server'
+        description: New server details.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Server was updated successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Server can't be altered during runtime
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Update server details (mainly done by service modules).
+      tags:
+      - servers
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers/{serverId}/permissions:
+    get:
+      operationId: getServiceServerPermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific server's permission configurations.
+      tags:
+      - servers
+    put:
+      operationId: putServiceServerPermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set specific server's permission configurations.
+      tags:
+      - servers
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers/{serverId}/serverCredentials:
+    get:
+      operationId: getServiceServerServerCredentials
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerCredentials'
+          description: Server credentials.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get server's credentials.
+      tags:
+      - servers
+    put:
+      operationId: putServiceServerServerCredentials
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerCredentials'
+        description: New server credentials.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Server credentials altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set server's credentials.
+      tags:
+      - servers
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers/{serverId}/serverCredentials/permissions:
+    get:
+      operationId: getServiceServerServerCredentialsPermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permissions'
+          description: Permissions will be provided.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific server's credentials permission configurations.
+      tags:
+      - servers
+    put:
+      operationId: putServiceServerServerCredentialsPermissions
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permissions'
+        description: New permissions.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Permissions altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Set specific server's credentials permission configurations.
+      tags:
+      - servers
+      x-codegen-request-body-name: body
+  /services/{serviceId}/servers/{serverId}/validate:
+    post:
+      operationId: postServiceServerValidate
+      parameters:
+      - description: Numeric ID of the service.
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: integer
+      - description: Numeric ID of the server.
+        in: path
+        name: serverId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content: {}
+          description: Validation went successfully.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: There were something wrong with the request or configuration.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Validate that cloud provider services can be controlled with the given
+        details.
+      tags:
+      - servers
+  /users:
+    get:
+      operationId: getUsers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+          description: List of all users.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get all users.
+      tags:
+      - users
+    post:
+      operationId: postUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserContent'
+        description: New user details.
+        required: true
+      responses:
+        "201":
+          content: {}
+          description: User created successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Create a new user.
+      tags:
+      - users
+      x-codegen-request-body-name: body
+  /users/login:
+    post:
+      operationId: postUserLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExistingUserCredentials'
+        description: User credentials.
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+          description: User authenticated successfully.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Login required two factor authentication / wrong username or
+            password.
+      summary: Login to user account.
+      tags:
+      - users
+      x-codegen-request-body-name: body
+  /users/{userId}:
+    delete:
+      operationId: deleteUser
+      parameters:
+      - description: Numeric ID of the user.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content: {}
+          description: User deleted.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Remove user from the system.
+      tags:
+      - users
+    get:
+      operationId: getUser
+      parameters:
+      - description: Numeric ID of the user.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Details of the user.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Get specific user details.
+      tags:
+      - users
+    put:
+      operationId: putUser
+      parameters:
+      - description: Numeric ID of the user.
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: New user details.
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: User was altered successfully.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have sufficient permissions.
+      security:
+      - token: []
+      summary: Alter service state.
+      tags:
+      - users
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    CloudAccount:
+      allOf:
+      - $ref: '#/components/schemas/CloudAccount_allOf'
+      - $ref: '#/components/schemas/CloudAccountContent'
+    CloudAccountContent:
+      properties:
+        cloudAccountSecificConfiguration:
+          properties: {}
+          type: object
+        description:
+          example: These are used only for Block Game.
+          maxLength: 500
+          minLength: 0
+          type: string
+        name:
+          example: My super secret cloud credentials
+          maxLength: 50
+          minLength: 3
+          type: string
+        project:
+          maxLength: 100
+          minLength: 0
+          type: string
+        token:
+          maxLength: 1000
+          minLength: 0
+          type: string
+      type: object
+    CloudAccounts:
+      items:
+        $ref: '#/components/schemas/CloudAccount'
+      type: array
+    CloudModule:
+      allOf:
+      - $ref: '#/components/schemas/ModuleShared'
+      - $ref: '#/components/schemas/CloudModule_allOf'
+    CloudModuleReconfigurationProperties:
+      properties:
+        disk:
+          type: boolean
+        firewall:
+          type: boolean
+        machine:
+          type: boolean
+        network:
+          type: boolean
+      type: object
+    CloudModules:
+      items:
+        $ref: '#/components/schemas/CloudModule'
+      type: array
+    ConsoleSettings:
+      example:
+        consolePort: 5249
+        timeouts:
+          moduleHeartbeats: 60
+          moduleCalls: 120
+        backgroundProcessSchedule:
+          moduleHeartbeats: 60
+          serviceStatusPoll: 600
+        sql:
+          password: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+          address: 1.2.3.4:443
+          type: internal
+          username: potku
+      properties:
+        backgroundProcessSchedule:
+          $ref: '#/components/schemas/ConsoleSettings_backgroundProcessSchedule'
+        consolePort:
+          maximum: 65535
+          minimum: 1
+          type: integer
+        sql:
+          $ref: '#/components/schemas/ConsoleSettings_sql'
+        timeouts:
+          $ref: '#/components/schemas/ConsoleSettings_timeouts'
+      type: object
+    DesiredServerStates:
+      enum:
+      - started
+      - stopped
+      type: string
+    DesiredServiceStates:
+      enum:
+      - started
+      - stopped
+      type: string
+    Error:
+      nullable: true
+      properties:
+        code:
+          type: integer
+        description:
+          type: string
+        title:
+          type: string
+      type: object
+      x-nullable: true
+    ExistingUserCredentials:
+      allOf:
+      - $ref: '#/components/schemas/ExistingUserCredentials_allOf'
+      - $ref: '#/components/schemas/UserCredentials'
+    Group:
+      allOf:
+      - $ref: '#/components/schemas/Group_allOf'
+      - $ref: '#/components/schemas/GroupContent'
+    GroupContent:
+      example:
+        name: My 1# permission group
+        ownerUserId: 42
+        users:
+        - 42
+        - 42
+      properties:
+        name:
+          example: My 1# permission group
+          maxLength: 50
+          minLength: 3
+          type: string
+        ownerUserId:
+          example: 42
+          minimum: 0
+          type: integer
+        users:
+          items:
+            example: 42
+            minimum: 0
+            type: integer
+          type: array
+      required:
+      - name
+      type: object
+    Groups:
+      items:
+        $ref: '#/components/schemas/Group'
+      type: array
+    InitialServerStates:
+      allOf:
+      - $ref: '#/components/schemas/InitialServerStates_allOf'
+      - $ref: '#/components/schemas/DesiredServerStates'
+    InitialServiceStates:
+      allOf:
+      - $ref: '#/components/schemas/InitialServerStates_allOf'
+      - $ref: '#/components/schemas/DesiredServiceStates'
+    ModuleShared:
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/ModuleShared_capabilities'
+        description:
+          example: Module for all your needs.
+          maxLength: 500
+          minLength: 0
+          readOnly: true
+          type: string
+        enabled:
+          example: false
+          type: boolean
+        error:
+          $ref: '#/components/schemas/Error'
+        name:
+          example: 'Module #1'
+          maxLength: 50
+          minLength: 3
+          readOnly: true
+          type: string
+        state:
+          enum:
+          - running
+          - stopped
+          - error
+          readOnly: true
+          type: string
+        uuid:
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          readOnly: true
+          type: string
+      required:
+      - enabled
+      type: object
+    NewUserCredentials:
+      allOf:
+      - $ref: '#/components/schemas/NewUserCredentials_allOf'
+      - $ref: '#/components/schemas/UserCredentials'
+    Permission:
+      properties:
+        groupId:
+          example: 42
+          minimum: 0
+          type: integer
+        permissions:
+          $ref: '#/components/schemas/Permission_permissions'
+      required:
+      - groupId
+      type: object
+    Permissions:
+      items:
+        $ref: '#/components/schemas/Permission'
+      type: array
+    PostNewServer:
+      allOf:
+      - $ref: '#/components/schemas/PostNewServer_allOf'
+      - $ref: '#/components/schemas/ServerContent'
+    PostNewService:
+      allOf:
+      - $ref: '#/components/schemas/PostNewService_allOf'
+      - $ref: '#/components/schemas/ServiceContent'
+      - $ref: '#/components/schemas/PostNewService_allOf_1'
+    Server:
+      allOf:
+      - $ref: '#/components/schemas/Server_allOf'
+      - $ref: '#/components/schemas/Server_allOf_1'
+      - $ref: '#/components/schemas/Server_allOf_2'
+      - $ref: '#/components/schemas/Server_allOf_3'
+      - $ref: '#/components/schemas/Server_allOf_4'
+      - $ref: '#/components/schemas/ServerContent'
+    ServerContent:
+      properties:
+        cloudModule:
+          $ref: '#/components/schemas/ServerContent_cloudModule'
+        description:
+          example: My favourite Block game server.
+          maxLength: 500
+          minLength: 0
+          type: string
+        machine:
+          $ref: '#/components/schemas/ServerContent_machine'
+        name:
+          example: 'Server #1'
+          maxLength: 50
+          minLength: 3
+          type: string
+        network:
+          $ref: '#/components/schemas/ServerContent_network'
+        primaryServer:
+          default: false
+          example: false
+          type: boolean
+        serverSpecificConfiguration:
+          properties: {}
+          type: object
+      required:
+      - cloudModule
+      - name
+      type: object
+    ServerCredentials:
+      example:
+        privateKey: privateKey
+        password: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+        username: root
+      properties:
+        password:
+          default: ""
+          example: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+          type: string
+        privateKey:
+          default: ""
+          type: string
+        username:
+          default: ""
+          example: root
+          type: string
+      type: object
+    ServerStates:
+      allOf:
+      - $ref: '#/components/schemas/ServerStates_allOf'
+      - $ref: '#/components/schemas/InitialServerStates'
+    Servers:
+      items:
+        $ref: '#/components/schemas/Server'
+      type: array
+    Service:
+      allOf:
+      - $ref: '#/components/schemas/Service_allOf'
+      - $ref: '#/components/schemas/Server_allOf_1'
+      - $ref: '#/components/schemas/Service_allOf_1'
+      - $ref: '#/components/schemas/ServiceContent'
+    ServiceContent:
+      properties:
+        description:
+          default: ""
+          example: My favourite Block game server.
+          maxLength: 500
+          minLength: 0
+          type: string
+        dns:
+          example: mygame.example.com
+          format: hostname
+          maxLength: 200
+          minLength: 4
+          type: string
+        flags:
+          $ref: '#/components/schemas/ServiceContent_flags'
+        name:
+          example: Block Game survival
+          maxLength: 50
+          minLength: 3
+          type: string
+        ports:
+          items:
+            example: 25565
+            maximum: 65535
+            minimum: 1
+            type: integer
+          type: array
+        serviceSpecificConfiguration:
+          properties: {}
+          type: object
+        shutdownAfterTime:
+          minimum: 1
+          type: integer
+      required:
+      - dns
+      - flags
+      - name
+      - ports
+      type: object
+    ServiceModule:
+      allOf:
+      - $ref: '#/components/schemas/ModuleShared'
+      - $ref: '#/components/schemas/ServiceModule_allOf'
+    ServiceModules:
+      items:
+        $ref: '#/components/schemas/ServiceModule'
+      type: array
+    ServiceStates:
+      allOf:
+      - $ref: '#/components/schemas/ServiceStates_allOf'
+      - $ref: '#/components/schemas/InitialServiceStates'
+    Services:
+      items:
+        properties:
+          dns:
+            example: mygame.example.com
+            format: hostname
+            maxLength: 200
+            minLength: 4
+            readOnly: true
+            type: string
+          name:
+            example: Block Game survival
+            maxLength: 50
+            minLength: 3
+            readOnly: true
+            type: string
+          ports:
+            items:
+              example: 25565
+              maximum: 65535
+              minimum: 1
+              type: integer
+            readOnly: true
+            type: array
+          serviceId:
+            example: 42
+            minimum: 0
+            readOnly: true
+            type: integer
+        type: object
+      type: array
+    User:
+      allOf:
+      - $ref: '#/components/schemas/User_allOf'
+      - $ref: '#/components/schemas/UserContent'
+    UserContent:
+      allOf:
+      - $ref: '#/components/schemas/UserContent_allOf'
+      - $ref: '#/components/schemas/NewUserCredentials'
+    UserCredentials:
+      properties:
+        password:
+          example: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+          maxLength: 200
+          minLength: 10
+          type: string
+        username:
+          example: user1
+          maxLength: 30
+          minLength: 3
+          type: string
+      required:
+      - password
+      - username
+      type: object
+    Users:
+      items:
+        $ref: '#/components/schemas/User'
+      type: array
+    inline_response_200:
+      example:
+        maximum: 1000
+        minimum: 10
+      properties:
+        maximum:
+          example: 1000
+          type: integer
+        minimum:
+          example: 10
+          type: integer
+      type: object
+    inline_response_200_1:
+      example:
+        maximum: 16384
+        minimum: 1024
+      properties:
+        maximum:
+          example: 16384
+          type: integer
+        minimum:
+          example: 1024
+          type: integer
+      type: object
+    inline_response_200_2:
+      example:
+        token: ey...
+      properties:
+        token:
+          example: ey...
+          type: string
+      type: object
+    CloudAccount_allOf:
+      properties:
+        cloudAccountId:
+          example: 42
+          minimum: 0
+          readOnly: true
+          type: integer
+      type: object
+    CloudModule_allOf_capabilities_canQuery:
+      properties:
+        cpuCores:
+          type: boolean
+        diskBounds:
+          type: boolean
+        machineTypes:
+          type: boolean
+        operatingSystems:
+          type: boolean
+        orientations:
+          type: boolean
+        ramBounds:
+          type: boolean
+      type: object
+    CloudModule_allOf_capabilities:
+      properties:
+        canCreateNewServers:
+          type: boolean
+        canDeleteServers:
+          type: boolean
+        canQuery:
+          $ref: '#/components/schemas/CloudModule_allOf_capabilities_canQuery'
+        canReconfigureOffline:
+          $ref: '#/components/schemas/CloudModuleReconfigurationProperties'
+        canReconfigureOnline:
+          $ref: '#/components/schemas/CloudModuleReconfigurationProperties'
+        supportConfigurationValidation:
+          type: boolean
+        supportPartialConfiguration:
+          type: boolean
+      readOnly: true
+      type: object
+    CloudModule_allOf_schemas:
+      properties:
+        cloudAccountSpecificConfiguration:
+          properties: {}
+          type: object
+        cloudModuleConfiguration:
+          properties: {}
+          type: object
+        serverSpecifiConfiguration:
+          properties: {}
+          type: object
+      readOnly: true
+      type: object
+    CloudModule_allOf:
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/CloudModule_allOf_capabilities'
+        cloudModuleConfiguration:
+          properties: {}
+          type: object
+        schemas:
+          $ref: '#/components/schemas/CloudModule_allOf_schemas'
+      type: object
+    ConsoleSettings_backgroundProcessSchedule:
+      example:
+        moduleHeartbeats: 60
+        serviceStatusPoll: 600
+      properties:
+        moduleHeartbeats:
+          example: 60
+          minimum: 0
+          type: integer
+        serviceStatusPoll:
+          example: 600
+          minimum: 1
+          type: integer
+      type: object
+    ConsoleSettings_sql:
+      example:
+        password: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+        address: 1.2.3.4:443
+        type: internal
+        username: potku
+      properties:
+        address:
+          example: 1.2.3.4:443
+          maxLength: 60
+          minLength: 0
+          type: string
+        password:
+          example: 2b30651e42eb4819bc3f04eebfa3c81ad4eba4d094616eb2837215724d6f73a2
+          maxLength: 200
+          minLength: 0
+          type: string
+        type:
+          enum:
+          - internal
+          - external
+          type: string
+        username:
+          example: potku
+          maxLength: 30
+          minLength: 0
+          type: string
+      type: object
+    ConsoleSettings_timeouts:
+      example:
+        moduleHeartbeats: 60
+        moduleCalls: 120
+      properties:
+        moduleCalls:
+          example: 120
+          minimum: 1
+          type: integer
+        moduleHeartbeats:
+          example: 60
+          minimum: 1
+          type: integer
+      type: object
+    ExistingUserCredentials_allOf:
+      properties:
+        twoFactorKey:
+          example: 123456
+          maximum: 6
+          minimum: 0
+          multipleOf: 6
+          type: integer
+      type: object
+    Group_allOf:
+      properties:
+        groupId:
+          example: 42
+          minimum: 0
+          readOnly: true
+          type: integer
+      type: object
+    InitialServerStates_allOf:
+      enum:
+      - uninitialized
+      type: string
+    ModuleShared_capabilities:
+      properties:
+        moduleType:
+          enum:
+          - executable
+          - script
+          type: string
+      readOnly: true
+      type: object
+    NewUserCredentials_allOf:
+      properties:
+        twoFactorSecret:
+          default: ""
+          example: XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W
+          maxLength: 100
+          minLength: 0
+          type: string
+      type: object
+    Permission_permissions:
+      properties:
+        alterPermissions:
+          default: false
+          type: boolean
+        create:
+          default: false
+          type: boolean
+        delete:
+          default: false
+          type: boolean
+        read:
+          default: false
+          type: boolean
+        write:
+          default: false
+          type: boolean
+      type: object
+    PostNewServer_allOf:
+      properties:
+        state:
+          $ref: '#/components/schemas/InitialServerStates'
+      type: object
+    PostNewService_allOf:
+      properties:
+        state:
+          $ref: '#/components/schemas/InitialServiceStates'
+      required:
+      - state
+      type: object
+    PostNewService_allOf_1:
+      properties:
+        serviceModuleUuid:
+          example: 123e4567-e89b-12d3-a456-426652340000
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      required:
+      - serviceModuleUuid
+      type: object
+    Server_allOf:
+      properties:
+        state:
+          $ref: '#/components/schemas/ServerStates'
+      type: object
+    Server_allOf_1:
+      properties:
+        state:
+          readOnly: true
+          type: object
+      type: object
+    Server_allOf_2:
+      properties:
+        desiredState:
+          $ref: '#/components/schemas/ServerStates'
+      type: object
+    Server_allOf_3:
+      properties:
+        desiredState:
+          example: started
+          readOnly: true
+          type: object
+      type: object
+    Server_allOf_4_serverSpecificIds:
+      properties:
+        diskId:
+          maxLength: 100
+          minLength: 0
+          type: string
+        firewallId:
+          maxLength: 100
+          minLength: 0
+          type: string
+        machineId:
+          maxLength: 100
+          minLength: 0
+          type: string
+        networkId:
+          maxLength: 100
+          minLength: 0
+          type: string
+        publicIpv4Id:
+          maxLength: 100
+          minLength: 0
+          type: string
+        publicIpv6Id:
+          maxLength: 100
+          minLength: 0
+          type: string
+      type: object
+    Server_allOf_4:
+      properties:
+        error:
+          $ref: '#/components/schemas/Error'
+        newServer:
+          readOnly: true
+          type: boolean
+        serverId:
+          example: 42
+          minimum: 0
+          readOnly: true
+          type: integer
+        serverSpecificIds:
+          $ref: '#/components/schemas/Server_allOf_4_serverSpecificIds'
+      type: object
+    ServerContent_cloudModule:
+      properties:
+        cloudAccountId:
+          example: 42
+          minimum: 0
+          type: integer
+        cloudModuleUuid:
+          example: 123e4567-e89b-12d3-a456-426652340000
+          format: uuid
+          maxLength: 36
+          minLength: 36
+          type: string
+      type: object
+    ServerContent_machine:
+      properties:
+        cpus:
+          example: 4.0
+          minimum: 0.01
+          type: number
+        disk:
+          example: 50
+          minimum: 1
+          type: integer
+        operatingSystem:
+          default: ""
+          example: Ubuntu 18.04 LTS
+          maxLength: 50
+          minLength: 0
+          type: string
+        orientation:
+          default: ""
+          example: compute
+          maxLength: 50
+          minLength: 0
+          type: string
+        ram:
+          example: 1500
+          minimum: 1E+2
+          type: integer
+        type:
+          default: ""
+          example: virtual machine
+          maxLength: 50
+          minLength: 0
+          type: string
+      type: object
+    ServerContent_network:
+      properties:
+        additionalPorts:
+          items:
+            type: integer
+          type: array
+        dns:
+          example: myserver.cloud-provider.com
+          format: hostname
+          maxLength: 200
+          minLength: 4
+          type: string
+        ipv4:
+          example: 1.2.3.4
+          format: ipv4
+          maxLength: 17
+          minLength: 0
+          type: string
+        ipv6:
+          example: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+          format: ipv6
+          maxLength: 39
+          minLength: 0
+          type: string
+      type: object
+    ServerStates_allOf:
+      enum:
+      - configuring network
+      - configuring firewall
+      - configuring disk
+      - configuring machine
+      type: string
+    Service_allOf:
+      properties:
+        state:
+          $ref: '#/components/schemas/ServiceStates'
+      type: object
+    Service_allOf_1_flags:
+      properties:
+        manuallyConfigured:
+          type: boolean
+        newService:
+          type: boolean
+      readOnly: true
+      type: object
+    Service_allOf_1:
+      properties:
+        desiredState:
+          $ref: '#/components/schemas/DesiredServiceStates'
+        error:
+          $ref: '#/components/schemas/Error'
+        flags:
+          $ref: '#/components/schemas/Service_allOf_1_flags'
+        loggedInUsers:
+          example: 5
+          minimum: 0
+          readOnly: true
+          type: integer
+        serviceId:
+          example: 42
+          minimum: 0
+          readOnly: true
+          type: integer
+      required:
+      - desiredState
+      type: object
+    ServiceContent_flags:
+      properties:
+        sharedNetwork:
+          default: false
+          type: boolean
+      type: object
+    ServiceModule_allOf_capabilities:
+      properties:
+        canBeUsedAsTrigger:
+          type: boolean
+        canConfigureNewService:
+          type: boolean
+        canInformUserCount:
+          type: boolean
+        canReconfigureService:
+          type: boolean
+        supportMultipleServers:
+          type: boolean
+        supportServerAmountChanges:
+          type: boolean
+      readOnly: true
+      type: object
+    ServiceModule_allOf_schemas:
+      properties:
+        serviceModuleConfiguration:
+          properties: {}
+          type: object
+        serviceSpecifigConfiguration:
+          properties: {}
+          type: object
+      readOnly: true
+      type: object
+    ServiceModule_allOf:
+      properties:
+        capabilities:
+          $ref: '#/components/schemas/ServiceModule_allOf_capabilities'
+        schemas:
+          $ref: '#/components/schemas/ServiceModule_allOf_schemas'
+        serviceModuleConfiguration:
+          properties: {}
+          type: object
+      type: object
+    ServiceStates_allOf:
+      enum:
+      - server starting
+      - dns configuring
+      - service configuring
+      - service stopping
+      - server stopping
+      - server reconfiguring
+      - terminating server
+      type: string
+    User_allOf:
+      properties:
+        userId:
+          example: 42
+          minimum: 0
+          readOnly: true
+          type: integer
+      type: object
+    UserContent_allOf:
+      properties:
+        administrator:
+          default: false
+          example: false
+          type: boolean
+        email:
+          example: user1@example.com
+          format: email
+          maxLength: 100
+          minLength: 0
+          type: string
+      type: object
+  securitySchemes:
+    token:
+      in: header
+      name: token
+      type: apiKey
+x-components:
+  parameters:
+    GroupGroupId:
+      description: Numeric ID of the group.
+      in: path
+      name: groupId
+      required: true
+      type: integer
+    ModuleCloudModuleAccountId:
+      description: Numeric id of cloud module credentials.
+      in: path
+      name: cloudAccountId
+      required: true
+      type: string
+    ModuleCloudModuleUuid:
+      description: Numeric UUID of the cloud module.
+      format: uuid
+      in: path
+      maxLength: 36
+      minLength: 36
+      name: cloudModuleUuid
+      required: true
+      type: string
+    ModuleServiceModuleUuid:
+      description: Numeric UUID of the service module.
+      format: uuid
+      in: path
+      maxLength: 36
+      minLength: 36
+      name: serviceModuleUuid
+      required: true
+      type: string
+    ServerPathId:
+      description: Numeric ID of the server.
+      in: path
+      name: serverId
+      required: true
+      type: integer
+    ServicePathId:
+      description: Numeric ID of the service.
+      in: path
+      name: serviceId
+      required: true
+      type: integer
+    UserUserId:
+      description: Numeric ID of the user.
+      in: path
+      name: userId
+      required: true
+      type: integer
+  responses:
+    "200CloudAccountDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/CloudAccount'
+      description: Cloud module account details.
+    "200CloudModuleDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/CloudModule'
+      description: Specific cloud module details.
+    "200ConsoleSettingDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/ConsoleSettings'
+      description: Current Potku console main settings.
+    "200GroupDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Group'
+      description: Details of the permission group.
+    "200Permissions":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Permissions'
+      description: Permissions will be provided.
+    "200ServerCredentials":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/ServerCredentials'
+      description: Server credentials.
+    "200ServerDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Server'
+      description: Server details.
+    "200ServiceDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Service'
+      description: Service details.
+    "200ServiceModuleDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/ServiceModule'
+      description: Specific service module details.
+    "200UserDetails":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/User'
+      description: Details of the user.
+    "400Error":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Error'
+      description: There were something wrong with the request or configuration.
+    "403Forbidden":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Error'
+      description: You do not have sufficient permissions.
+    "500ModuleError":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Error'
+      description: Something has gone wrong in the module that was processing request.
+    "500Unknown":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Error'
+      description: Unknown internal server error.
+    "501ModuleLacksCapability":
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Error'
+      description: Module does not support this functionality.
+  requestBodies:
+    NewPermissions:
+      content:
+        application/json:
+          schema:
+            $ref: '#/definitions/Permissions'
+      description: New permissions.
+      required: true
+x-original-swagger-version: "2.0"
+
